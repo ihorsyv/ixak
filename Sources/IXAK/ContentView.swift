@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.openWindow) private var openWindow
+
     var body: some View {
         TabView {
             DiagnosticsView()
@@ -22,6 +24,9 @@ struct ContentView: View {
                 .tabItem {
                     Label("About / О программе", systemImage: "info.circle")
                 }
+        }
+        .onAppear {
+            WindowOpener.shared.action = { openWindow(id: "main") }
         }
     }
 }
