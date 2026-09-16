@@ -24,5 +24,7 @@
     <true/>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.utilities</string>
+    <key>IXAKGitCommit</key>
+    <string>unknown</string>
 </dict>
 </plist>

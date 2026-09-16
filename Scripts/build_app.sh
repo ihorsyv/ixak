@@ -38,4 +38,12 @@ fi
 cp "Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
 cp "Resources/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 
-echo "Built $APP_DIR"
+GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+    :
+else
+    GIT_COMMIT="${GIT_COMMIT}-dirty"
+fi
+/usr/libexec/PlistBuddy -c "Set :IXAKGitCommit $GIT_COMMIT" "$APP_DIR/Contents/Info.plist"
+
+echo "Built $APP_DIR (commit $GIT_COMMIT)"

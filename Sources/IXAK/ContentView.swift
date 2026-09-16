@@ -17,6 +17,11 @@ struct ContentView: View {
                 .tabItem {
                     Label("Cleanup / Чистка", systemImage: "trash")
                 }
+
+            AboutView()
+                .tabItem {
+                    Label("About / О программе", systemImage: "info.circle")
+                }
         }
     }
 }
