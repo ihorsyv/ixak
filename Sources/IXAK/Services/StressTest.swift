@@ -20,17 +20,24 @@ final class StressTest: @unchecked Sendable {
     }
 
     /// Busy-loops every core for `duration` seconds.
+    ///
+    /// Uses `DispatchQueue.concurrentPerform` rather than Swift's structured
+    /// concurrency task group: a tight loop with no `await` inside never
+    /// yields back to the cooperative thread pool, which caps how many such
+    /// tasks the pool lets run in parallel (observed as load stuck around
+    /// 20% instead of saturating all cores). GCD's concurrent-perform uses
+    /// real OS threads sized for exactly this kind of CPU-bound fan-out.
     func runCPU(duration: TimeInterval) async {
         setCancelled(false)
         let deadline = Date().addingTimeInterval(duration)
         let cores = CPUMonitor.coreCount
 
-        await withTaskGroup(of: Void.self) { group in
-            for _ in 0..<cores {
-                group.addTask { [weak self] in
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                DispatchQueue.concurrentPerform(iterations: cores) { _ in
                     var x: Double = 1
                     while Date() < deadline {
-                        if self?.isCancelled == true { return }
+                        if self?.isCancelled == true { break }
                         for _ in 0..<50_000 {
                             x = x * 1.0000001 + 0.0000001
                             x = x.squareRoot()
@@ -38,6 +45,7 @@ final class StressTest: @unchecked Sendable {
                     }
                     _ = x
                 }
+                continuation.resume()
             }
         }
     }

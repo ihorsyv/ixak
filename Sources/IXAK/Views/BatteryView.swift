@@ -22,6 +22,14 @@ struct BatteryView: View {
                         LabeledContent("Temperature / Температура", value: String(format: "%.1f°C", temp))
                     }
                 }
+
+                if let hint = recommendation(for: battery) {
+                    Section("Recommendation / Рекомендация") {
+                        Text(hint)
+                            .font(.callout)
+                            .foregroundStyle(.orange)
+                    }
+                }
             } else if noBattery {
                 Text("No battery detected (desktop Mac) / Батарея не обнаружена (настольный Mac)")
             } else {
@@ -38,6 +46,19 @@ struct BatteryView: View {
     private func load() {
         battery = BatteryInfo.read()
         noBattery = (battery == nil)
+    }
+
+    private func recommendation(for battery: BatteryInfo) -> String? {
+        if battery.condition.hasPrefix("Service Recommended") {
+            return "Apple reports a permanent fault — book a Genius Bar / authorized service appointment. / Apple сообщает о постоянной неисправности — обратитесь в авторизованный сервис."
+        }
+        if battery.healthPercent < 80 {
+            return "Battery health is below 80% — expect reduced runtime; consider a battery replacement. / Износ батареи выше 20% — время работы заметно снижено, стоит задуматься о замене."
+        }
+        if let temp = battery.temperatureCelsius, temp > 40 {
+            return "Battery temperature is high (\(String(format: "%.0f", temp))°C) — ensure vents aren't blocked and avoid charging in direct sun/heat. / Высокая температура батареи — проверьте вентиляцию и не заряжайте на солнце/в тепле."
+        }
+        return nil
     }
 }
 
