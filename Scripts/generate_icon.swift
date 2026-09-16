@@ -28,8 +28,8 @@ func drawHedgehogIcon(size px: Int) -> NSImage {
     let bgPath = NSBezierPath(roundedRect: bgRect, xRadius: cornerRadius, yRadius: cornerRadius)
 
     let gradient = NSGradient(colors: [
-        NSColor(calibratedRed: 0.30, green: 0.20, blue: 0.55, alpha: 1.0),
-        NSColor(calibratedRed: 0.13, green: 0.09, blue: 0.30, alpha: 1.0),
+        NSColor(calibratedWhite: 0.22, alpha: 1.0),
+        NSColor(calibratedWhite: 0.04, alpha: 1.0),
     ])
     ctx.saveGState()
     bgPath.addClip()
@@ -90,7 +90,7 @@ func drawHedgehogIcon(size px: Int) -> NSImage {
     nose.fill()
 
     // Small dark eye and nose dot.
-    let accent = NSColor(calibratedRed: 0.13, green: 0.09, blue: 0.30, alpha: 1.0)
+    let accent = NSColor(calibratedWhite: 0.04, alpha: 1.0)
     let eyeSize = s * 0.028
     let eyeRect = CGRect(x: cx - bodyW * 0.16, y: cy + s * 0.02, width: eyeSize, height: eyeSize)
     accent.setFill()
