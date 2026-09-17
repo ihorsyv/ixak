@@ -17,5 +17,11 @@ osacompile -o "$INSTALLER_DIR" Scripts/Installer.applescript
 cp -R "build/IXAK.app" "$INSTALLER_DIR/Contents/Resources/IXAK.app"
 cp "Resources/AppIcon.icns" "$INSTALLER_DIR/Contents/Resources/applet.icns"
 
+# Copying files into the applet after osacompile invalidates its ad-hoc seal.
+# On Apple Silicon an app with a broken seal is killed at launch, so it must
+# be re-signed after the resources are in place — not before.
+xattr -cr "$INSTALLER_DIR"
+codesign --force --deep -s - "$INSTALLER_DIR"
+
 echo "Built '$INSTALLER_DIR'"
 echo "Zip it for transfer: (cd build && zip -r -y 'IXAK Installer.zip' 'IXAK Installer.app')"

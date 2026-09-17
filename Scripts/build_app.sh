@@ -46,4 +46,11 @@ else
 fi
 /usr/libexec/PlistBuddy -c "Set :IXAKGitCommit $GIT_COMMIT" "$APP_DIR/Contents/Info.plist"
 
+# Zip transfer (and Telegram's own sandboxing on the sending side) can strip
+# the executable bit and always invalidates any prior signature, so both are
+# reasserted here rather than left to whoever builds/repackages downstream.
+chmod +x "$APP_DIR/Contents/MacOS/IXAK"
+xattr -cr "$APP_DIR"
+codesign --force --deep -s - "$APP_DIR"
+
 echo "Built $APP_DIR (commit $GIT_COMMIT)"
