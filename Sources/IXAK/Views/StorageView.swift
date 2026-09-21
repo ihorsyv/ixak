@@ -67,9 +67,9 @@ struct StorageView: View {
         }
     }
 
-    private func scan() {
+    private func scan(clearResult: Bool = true) {
         isScanning = true
-        lastResult = nil
+        if clearResult { lastResult = nil }
         Task {
             let result = await Task.detached { StorageScanner.scan() }.value
             await MainActor.run {
@@ -86,10 +86,14 @@ struct StorageView: View {
             await MainActor.run {
                 lastResult = failures.isEmpty
                     ? BilingualText(en: "Moved \(selected.count) items to Trash", ru: "Перемещено \(selected.count) объектов в корзину")
-                    : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось переместить: \(failures.count)")
-                scan()
+                    : BilingualText(en: "\(failures.count) items failed: \(failureReason(failures))", ru: "Не удалось переместить: \(failures.count) (\(failureReason(failures)))")
+                scan(clearResult: false)
             }
         }
+    }
+
+    private func failureReason(_ failures: [URL: Error]) -> String {
+        failures.values.first?.localizedDescription ?? "?"
     }
 }
 

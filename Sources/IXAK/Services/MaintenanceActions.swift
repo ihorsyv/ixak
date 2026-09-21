@@ -68,10 +68,20 @@ enum MaintenanceActions {
     private static func runPrivileged(_ shellCommand: String) throws -> BilingualText {
         let escaped = shellCommand.replacingOccurrences(of: "\"", with: "\\\"")
         let script = "do shell script \"\(escaped)\" with administrator privileges"
-        let output = try run("/usr/bin/osascript", ["-e", script])
-        guard !output.isEmpty else { return BilingualText(en: "Done", ru: "Готово") }
-        // Raw command output — not IXAK's own text, so there's no Russian
-        // translation to give it; shown as-is on both lines.
-        return BilingualText(en: output, ru: output)
+        do {
+            let output = try run("/usr/bin/osascript", ["-e", script])
+            guard !output.isEmpty else { return BilingualText(en: "Done", ru: "Готово") }
+            // Raw command output — not IXAK's own text, so there's no Russian
+            // translation to give it; shown as-is on both lines.
+            return BilingualText(en: output, ru: output)
+        } catch {
+            // AppleScript's own error text ("0:99: execution error: ... (-128)")
+            // is too raw to show as-is; -128 specifically means the user
+            // dismissed the password prompt.
+            if (error as NSError).localizedDescription.contains("-128") {
+                throw NSError(domain: "IXAK.Maintenance", code: -128, userInfo: [NSLocalizedDescriptionKey: "Cancelled"])
+            }
+            throw error
+        }
     }
 }

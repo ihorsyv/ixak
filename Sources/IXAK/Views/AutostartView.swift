@@ -77,9 +77,9 @@ struct AutostartView: View {
         }
     }
 
-    private func scan() {
+    private func scan(clearResult: Bool = true) {
         isScanning = true
-        lastResult = nil
+        if clearResult { lastResult = nil }
         Task {
             let result = await Task.detached { AutostartScanner.scan() }.value
             await MainActor.run {
@@ -96,10 +96,14 @@ struct AutostartView: View {
             await MainActor.run {
                 lastResult = failures.isEmpty
                     ? BilingualText(en: "Removed \(selected.count) items", ru: "Удалено \(selected.count) объектов")
-                    : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось удалить: \(failures.count)")
-                scan()
+                    : BilingualText(en: "\(failures.count) items failed: \(failureReason(failures))", ru: "Не удалось удалить: \(failures.count) (\(failureReason(failures)))")
+                scan(clearResult: false)
             }
         }
+    }
+
+    private func failureReason(_ failures: [URL: Error]) -> String {
+        failures.values.first?.localizedDescription ?? "?"
     }
 }
 

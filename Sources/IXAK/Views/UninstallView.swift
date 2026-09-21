@@ -39,6 +39,14 @@ struct UninstallView: View {
             .labelsHidden()
             .padding([.horizontal, .top])
 
+            BilingualLabel(
+                en: "Some leftovers live inside another app's sandboxed container — deleting those needs Full Disk Access for IXAK (System Settings → Privacy & Security → Full Disk Access).",
+                ru: "Часть хвостов лежит в песочнице другого приложения — для их удаления нужен доступ Full Disk Access для IXAK (Настройки системы → Конфиденциальность и безопасность → Полный доступ к диску)."
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal)
+
             if mode == .app {
                 appModeBody
             } else {
@@ -157,6 +165,10 @@ struct UninstallView: View {
         }
     }
 
+    private func failureReason(_ failures: [URL: Error]) -> String {
+        failures.values.first?.localizedDescription ?? "?"
+    }
+
     private func loadApps() {
         Task {
             let result = await Task.detached { UninstallerScanner.installedApps() }.value
@@ -177,9 +189,9 @@ struct UninstallView: View {
         }
     }
 
-    private func scanOrphaned() {
+    private func scanOrphaned(clearResult: Bool = true) {
         isScanningOrphaned = true
-        lastResult = nil
+        if clearResult { lastResult = nil }
         Task {
             let result = await Task.detached { UninstallerScanner.orphanedLeftovers() }.value
             await MainActor.run {
@@ -206,7 +218,7 @@ struct UninstallView: View {
                 await MainActor.run {
                     lastResult = totalFailures == 0
                         ? BilingualText(en: "Removed \(app.name) and \(selectedLeftovers.count) leftovers", ru: "Удалено \(app.name) и \(selectedLeftovers.count) хвостов")
-                        : BilingualText(en: "\(totalFailures) items failed", ru: "Не удалось удалить: \(totalFailures)")
+                        : BilingualText(en: "\(totalFailures) items failed: \(failureReason(failures))", ru: "Не удалось удалить: \(totalFailures) (\(failureReason(failures)))")
                     selectedApp = nil
                     leftovers = []
                     loadApps()
@@ -219,8 +231,8 @@ struct UninstallView: View {
                 await MainActor.run {
                     lastResult = failures.isEmpty
                         ? BilingualText(en: "Moved \(selected.count) items to Trash", ru: "Перемещено \(selected.count) объектов в корзину")
-                        : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось переместить: \(failures.count)")
-                    scanOrphaned()
+                        : BilingualText(en: "\(failures.count) items failed: \(failureReason(failures))", ru: "Не удалось переместить: \(failures.count) (\(failureReason(failures)))")
+                    scanOrphaned(clearResult: false)
                 }
             }
         }
