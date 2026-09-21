@@ -3,6 +3,8 @@ import SwiftUI
 struct AboutView: View {
     @State private var isChecking = false
     @State private var checkResult: UpdateCheckResult?
+    @State private var isInstalling = false
+    @State private var installError: String?
 
     private var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
@@ -44,13 +46,22 @@ struct AboutView: View {
                     case .upToDate:
                         Text("Up to date / Установлена последняя версия ✓")
                             .foregroundStyle(.green)
-                    case .updateAvailable(let sha):
+                    case .updateAvailable(let sha, let pkgURL):
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Update available (\(sha)) / Доступно обновление (\(sha))")
                                 .foregroundStyle(.orange)
-                            Text("Pull the latest source and rebuild: git pull && ./Scripts/build_app.sh release --universal")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            Button("Install Update / Установить обновление") {
+                                installUpdate(from: pkgURL)
+                            }
+                            .disabled(isInstalling)
+                            if isInstalling {
+                                ProgressView()
+                            }
+                            if let installError {
+                                Text(installError)
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
+                            }
                         }
                     case .failed(let message):
                         Text("Check failed / Проверка не удалась: \(message)")
@@ -66,11 +77,29 @@ struct AboutView: View {
     private func checkForUpdates() {
         isChecking = true
         checkResult = nil
+        installError = nil
         Task {
             let result = await UpdateChecker.check()
             await MainActor.run {
                 checkResult = result
                 isChecking = false
+            }
+        }
+    }
+
+    private func installUpdate(from pkgURL: URL) {
+        isInstalling = true
+        installError = nil
+        Task {
+            do {
+                try await UpdateChecker.downloadAndOpenInstaller(from: pkgURL)
+            } catch {
+                await MainActor.run {
+                    installError = error.localizedDescription
+                }
+            }
+            await MainActor.run {
+                isInstalling = false
             }
         }
     }

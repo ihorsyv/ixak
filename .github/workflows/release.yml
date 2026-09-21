@@ -1,0 +1,32 @@
+name: Release
+
+# Builds the .pkg installer and publishes it as a GitHub Release on every
+# push to main, tagged build-<shortsha>. The app's "Install Update" button
+# (Sources/IXAK/Services/UpdateChecker.swift) reads /releases/latest to find
+# the newest .pkg — no extra setup needed here beyond this workflow existing.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build installer package
+        run: ./Scripts/build_installer.sh
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          gh release create "build-$SHA" "build/IXAK Installer.pkg" \
+            --title "Build $SHA" \
+            --notes "$(git log -1 --pretty=%s)"
