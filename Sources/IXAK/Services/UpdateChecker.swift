@@ -78,7 +78,7 @@ enum UpdateChecker {
         try FileManager.default.moveItem(at: tempURL, to: destination)
 
         await MainActor.run {
-            NSWorkspace.shared.open(destination)
+            _ = NSWorkspace.shared.open(destination)
         }
     }
 }

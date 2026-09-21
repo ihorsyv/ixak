@@ -34,10 +34,14 @@ final class StressTest: @unchecked Sendable {
 
         await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self else {
+                    continuation.resume()
+                    return
+                }
                 DispatchQueue.concurrentPerform(iterations: cores) { _ in
                     var x: Double = 1
                     while Date() < deadline {
-                        if self?.isCancelled == true { break }
+                        if self.isCancelled { break }
                         for _ in 0..<50_000 {
                             x = x * 1.0000001 + 0.0000001
                             x = x.squareRoot()
