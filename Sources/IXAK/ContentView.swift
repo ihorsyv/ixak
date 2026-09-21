@@ -20,6 +20,26 @@ struct ContentView: View {
                     Label("Cleanup / Чистка", systemImage: "trash")
                 }
 
+            StorageView()
+                .tabItem {
+                    Label("Storage / Хранилище", systemImage: "internaldrive")
+                }
+
+            UninstallView()
+                .tabItem {
+                    Label("Uninstall / Удаление", systemImage: "app.badge.checkmark")
+                }
+
+            AutostartView()
+                .tabItem {
+                    Label("Autostart / Автозапуск", systemImage: "power")
+                }
+
+            MaintenanceView()
+                .tabItem {
+                    Label("Maintenance / Обслуживание", systemImage: "wrench.and.screwdriver")
+                }
+
             AboutView()
                 .tabItem {
                     Label("About / О программе", systemImage: "info.circle")
