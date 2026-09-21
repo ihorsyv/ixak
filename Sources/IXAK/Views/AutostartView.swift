@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AutostartView: View {
+    @AppStorage("ixak.language") private var language: AppLanguage = .ru
     @State private var items: [AutostartItem] = []
     @State private var isScanning = false
     @State private var showConfirm = false
@@ -30,7 +31,7 @@ struct AutostartView: View {
                                     .truncationMode(.middle)
                             }
                             Spacer()
-                            BilingualLabel(item.scope, alignment: .trailing)
+                            BilingualLabel(item.scope)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -68,11 +69,11 @@ struct AutostartView: View {
             .padding()
         }
         .onAppear { scan() }
-        .alert("Disable and move to Trash?\nОтключить и переместить в корзину?", isPresented: $showConfirm) {
-            Button("Cancel / Отмена", role: .cancel) {}
-            Button("Disable / Отключить", role: .destructive) { performRemoval() }
+        .alert(language == .en ? "Disable and move to Trash?" : "Отключить и переместить в корзину?", isPresented: $showConfirm) {
+            Button(language == .en ? "Cancel" : "Отмена", role: .cancel) {}
+            Button(language == .en ? "Disable" : "Отключить", role: .destructive) { performRemoval() }
         } message: {
-            Text("Unloads the job and moves its plist to Trash.\nВыгружает задачу и перемещает её plist в корзину.")
+            Text(language == .en ? "Unloads the job and moves its plist to Trash." : "Выгружает задачу и перемещает её plist в корзину.")
         }
     }
 

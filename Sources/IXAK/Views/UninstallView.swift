@@ -1,15 +1,22 @@
 import SwiftUI
 
-private enum UninstallMode: String, CaseIterable, Identifiable {
-    // A segmented Picker (NSSegmentedControl under the hood) only renders a
-    // single line and silently drops custom multi-font content, so this one
-    // spot keeps the plain "EN / RU" string instead of the two-line style.
-    case app = "By App / По приложению"
-    case orphaned = "Orphaned Leftovers / Осиротевшие файлы"
-    var id: String { rawValue }
+private enum UninstallMode: CaseIterable, Identifiable {
+    case app
+    case orphaned
+    var id: Self { self }
+
+    func title(for language: AppLanguage) -> String {
+        switch (self, language) {
+        case (.app, .en): "By App"
+        case (.app, .ru): "По приложению"
+        case (.orphaned, .en): "Orphaned Leftovers"
+        case (.orphaned, .ru): "Осиротевшие файлы"
+        }
+    }
 }
 
 struct UninstallView: View {
+    @AppStorage("ixak.language") private var language: AppLanguage = .ru
     @State private var mode: UninstallMode = .app
 
     @State private var apps: [InstalledApp] = []
@@ -26,7 +33,7 @@ struct UninstallView: View {
     var body: some View {
         VStack {
             Picker("", selection: $mode) {
-                ForEach(UninstallMode.allCases) { Text($0.rawValue).tag($0) }
+                ForEach(UninstallMode.allCases) { Text($0.title(for: language)).tag($0) }
             }
             .pickerStyle(.segmented)
             .labelsHidden()
@@ -43,11 +50,11 @@ struct UninstallView: View {
             }
         }
         .onAppear { if apps.isEmpty { loadApps() } }
-        .alert("Move to Trash?\nПереместить в корзину?", isPresented: $showConfirm) {
-            Button("Cancel / Отмена", role: .cancel) {}
-            Button("Move / Переместить", role: .destructive) { performTrash() }
+        .alert(language == .en ? "Move to Trash?" : "Переместить в корзину?", isPresented: $showConfirm) {
+            Button(language == .en ? "Cancel" : "Отмена", role: .cancel) {}
+            Button(language == .en ? "Move" : "Переместить", role: .destructive) { performTrash() }
         } message: {
-            Text("Items go to Trash, not permanent deletion.\nФайлы перемещаются в корзину, не удаляются безвозвратно.")
+            Text(language == .en ? "Items go to Trash, not permanent deletion." : "Файлы перемещаются в корзину, не удаляются безвозвратно.")
         }
     }
 

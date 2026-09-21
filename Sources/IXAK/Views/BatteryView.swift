@@ -9,7 +9,7 @@ struct BatteryView: View {
             if let battery {
                 Section {
                     LabeledContent {
-                        BilingualLabel(battery.condition, alignment: .trailing)
+                        BilingualLabel(battery.condition)
                     } label: {
                         BilingualLabel(en: "Condition", ru: "Состояние")
                     }
@@ -44,7 +44,7 @@ struct BatteryView: View {
                         BilingualLabel(en: "Charge", ru: "Заряд")
                     }
                     LabeledContent {
-                        BilingualLabel(en: battery.isCharging ? "Yes" : "No", ru: battery.isCharging ? "Да" : "Нет", alignment: .trailing)
+                        BilingualLabel(en: battery.isCharging ? "Yes" : "No", ru: battery.isCharging ? "Да" : "Нет")
                     } label: {
                         BilingualLabel(en: "Charging", ru: "Заряжается")
                     }

@@ -1,39 +1,47 @@
 import SwiftUI
 
-/// A status/result message kept as separate EN and RU strings so it can be
-/// rendered as two properly styled lines instead of one "EN / RU" string.
+enum AppLanguage: String, CaseIterable, Identifiable {
+    case en, ru
+    var id: String { rawValue }
+
+    var shortName: String {
+        switch self {
+        case .en: "EN"
+        case .ru: "RU"
+        }
+    }
+}
+
+/// A status/result message kept as separate EN and RU strings so the app
+/// can show whichever one the user picked in the language switcher.
 struct BilingualText {
     let en: String
     let ru: String
+
+    func string(for language: AppLanguage) -> String {
+        switch language {
+        case .en: en
+        case .ru: ru
+        }
+    }
 }
 
-/// Two-line EN/RU caption used everywhere IXAK shows bilingual text: the
-/// English line on top, a smaller secondary-colored Russian line below.
-///
-/// Not used inside `.tabItem` or a `.segmented` Picker — both are backed by
-/// native AppKit controls (NSTabView / NSSegmentedControl) that only render
-/// a single line and silently drop custom multi-font content, so those two
-/// spots keep the plain "EN / RU" string instead.
+/// Renders one line of text in whichever language is currently selected
+/// (see the EN/RU switcher in ContentView). All bilingual copy in the app
+/// goes through this so a single toggle changes everything at once.
 struct BilingualLabel: View {
+    @AppStorage("ixak.language") private var language: AppLanguage = .ru
     let text: BilingualText
-    var alignment: HorizontalAlignment = .leading
 
-    init(en: String, ru: String, alignment: HorizontalAlignment = .leading) {
+    init(en: String, ru: String) {
         self.text = BilingualText(en: en, ru: ru)
-        self.alignment = alignment
     }
 
-    init(_ text: BilingualText, alignment: HorizontalAlignment = .leading) {
+    init(_ text: BilingualText) {
         self.text = text
-        self.alignment = alignment
     }
 
     var body: some View {
-        VStack(alignment: alignment, spacing: 1) {
-            Text(text.en)
-            Text(text.ru)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
+        Text(text.string(for: language))
     }
 }

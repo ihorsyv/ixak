@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CleanupView: View {
+    @AppStorage("ixak.language") private var language: AppLanguage = .ru
     @State private var categories: [CleanupCategory] = []
     @State private var isScanning = false
     @State private var showConfirm = false
@@ -51,8 +52,7 @@ struct CleanupView: View {
                 Spacer()
                 BilingualLabel(
                     en: "Selected: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
-                    ru: "Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
-                    alignment: .trailing
+                    ru: "Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))"
                 )
                 Button {
                     showConfirm = true
@@ -64,11 +64,11 @@ struct CleanupView: View {
             .padding()
         }
         .onAppear { scan() }
-        .alert("Move to Trash?\nПереместить в корзину?", isPresented: $showConfirm) {
-            Button("Cancel / Отмена", role: .cancel) {}
-            Button("Move / Переместить", role: .destructive) { performCleanup() }
+        .alert(language == .en ? "Move to Trash?" : "Переместить в корзину?", isPresented: $showConfirm) {
+            Button(language == .en ? "Cancel" : "Отмена", role: .cancel) {}
+            Button(language == .en ? "Move" : "Переместить", role: .destructive) { performCleanup() }
         } message: {
-            Text("Items go to Trash, not permanent deletion.\nФайлы перемещаются в корзину, не удаляются безвозвратно.")
+            Text(language == .en ? "Items go to Trash, not permanent deletion." : "Файлы перемещаются в корзину, не удаляются безвозвратно.")
         }
     }
 

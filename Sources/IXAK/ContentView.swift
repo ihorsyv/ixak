@@ -2,48 +2,62 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
+    @AppStorage("ixak.language") private var language: AppLanguage = .ru
 
     var body: some View {
-        TabView {
-            DiagnosticsView()
-                .tabItem {
-                    Label("Diagnostics\nДиагностика", systemImage: "waveform.path.ecg")
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Picker("", selection: $language) {
+                    ForEach(AppLanguage.allCases) { Text($0.shortName).tag($0) }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(width: 90)
+            }
+            .padding([.horizontal, .top], 8)
 
-            BatteryView()
-                .tabItem {
-                    Label("Battery\nБатарея", systemImage: "battery.100")
-                }
+            TabView {
+                DiagnosticsView()
+                    .tabItem {
+                        Label(language == .en ? "Diagnostics" : "Диагностика", systemImage: "waveform.path.ecg")
+                    }
 
-            CleanupView()
-                .tabItem {
-                    Label("Cleanup\nЧистка", systemImage: "trash")
-                }
+                BatteryView()
+                    .tabItem {
+                        Label(language == .en ? "Battery" : "Батарея", systemImage: "battery.100")
+                    }
 
-            StorageView()
-                .tabItem {
-                    Label("Storage\nХранилище", systemImage: "internaldrive")
-                }
+                CleanupView()
+                    .tabItem {
+                        Label(language == .en ? "Cleanup" : "Чистка", systemImage: "trash")
+                    }
 
-            UninstallView()
-                .tabItem {
-                    Label("Uninstall\nУдаление", systemImage: "app.badge.checkmark")
-                }
+                StorageView()
+                    .tabItem {
+                        Label(language == .en ? "Storage" : "Хранилище", systemImage: "internaldrive")
+                    }
 
-            AutostartView()
-                .tabItem {
-                    Label("Autostart\nАвтозапуск", systemImage: "power")
-                }
+                UninstallView()
+                    .tabItem {
+                        Label(language == .en ? "Uninstall" : "Удаление", systemImage: "app.badge.checkmark")
+                    }
 
-            MaintenanceView()
-                .tabItem {
-                    Label("Maintenance\nОбслуживание", systemImage: "wrench.and.screwdriver")
-                }
+                AutostartView()
+                    .tabItem {
+                        Label(language == .en ? "Autostart" : "Автозапуск", systemImage: "power")
+                    }
 
-            AboutView()
-                .tabItem {
-                    Label("About\nО программе", systemImage: "info.circle")
-                }
+                MaintenanceView()
+                    .tabItem {
+                        Label(language == .en ? "Maintenance" : "Обслуживание", systemImage: "wrench.and.screwdriver")
+                    }
+
+                AboutView()
+                    .tabItem {
+                        Label(language == .en ? "About" : "О программе", systemImage: "info.circle")
+                    }
+            }
         }
         .onAppear {
             WindowOpener.shared.action = { openWindow(id: "main") }

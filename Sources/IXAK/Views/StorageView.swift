@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StorageView: View {
+    @AppStorage("ixak.language") private var language: AppLanguage = .ru
     @State private var items: [LargeFileItem] = []
     @State private var isScanning = false
     @State private var showConfirm = false
@@ -47,8 +48,7 @@ struct StorageView: View {
                 Spacer()
                 BilingualLabel(
                     en: "Selected: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
-                    ru: "Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
-                    alignment: .trailing
+                    ru: "Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))"
                 )
                 Button {
                     showConfirm = true
@@ -59,11 +59,11 @@ struct StorageView: View {
             }
             .padding()
         }
-        .alert("Move to Trash?\nПереместить в корзину?", isPresented: $showConfirm) {
-            Button("Cancel / Отмена", role: .cancel) {}
-            Button("Move / Переместить", role: .destructive) { performCleanup() }
+        .alert(language == .en ? "Move to Trash?" : "Переместить в корзину?", isPresented: $showConfirm) {
+            Button(language == .en ? "Cancel" : "Отмена", role: .cancel) {}
+            Button(language == .en ? "Move" : "Переместить", role: .destructive) { performCleanup() }
         } message: {
-            Text("Apps and bundles are moved whole — nothing is deleted from inside a working app.\nПриложения и бандлы перемещаются целиком — файлы внутри рабочего приложения не трогаются.")
+            Text(language == .en ? "Apps and bundles are moved whole — nothing is deleted from inside a working app." : "Приложения и бандлы перемещаются целиком — файлы внутри рабочего приложения не трогаются.")
         }
     }
 
