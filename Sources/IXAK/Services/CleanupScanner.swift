@@ -13,7 +13,7 @@ struct CleanupItem: Identifiable {
 
 struct CleanupCategory: Identifiable {
     let id = UUID()
-    let name: String
+    let name: BilingualText
     let directory: URL
     var items: [CleanupItem]
 
@@ -26,13 +26,13 @@ struct CleanupCategory: Identifiable {
 /// directories is ever touched, and items are moved to Trash, not deleted
 /// permanently, so every action is reversible.
 enum CleanupScanner {
-    static func safeCategories() -> [(name: String, url: URL)] {
+    static func safeCategories() -> [(name: BilingualText, url: URL)] {
         let home = FileManager.default.homeDirectoryForCurrentUser
         return [
-            ("App Caches / Кэши приложений", home.appendingPathComponent("Library/Caches")),
-            ("Logs / Логи", home.appendingPathComponent("Library/Logs")),
-            ("Xcode DerivedData / Сборки Xcode", home.appendingPathComponent("Library/Developer/Xcode/DerivedData")),
-            ("iOS Device Support / Файлы устройств iOS", home.appendingPathComponent("Library/Developer/Xcode/iOS DeviceSupport")),
+            (BilingualText(en: "App Caches", ru: "Кэши приложений"), home.appendingPathComponent("Library/Caches")),
+            (BilingualText(en: "Logs", ru: "Логи"), home.appendingPathComponent("Library/Logs")),
+            (BilingualText(en: "Xcode DerivedData", ru: "Сборки Xcode"), home.appendingPathComponent("Library/Developer/Xcode/DerivedData")),
+            (BilingualText(en: "iOS Device Support", ru: "Файлы устройств iOS"), home.appendingPathComponent("Library/Developer/Xcode/iOS DeviceSupport")),
         ]
     }
 

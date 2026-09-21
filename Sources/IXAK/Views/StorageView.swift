@@ -4,7 +4,7 @@ struct StorageView: View {
     @State private var items: [LargeFileItem] = []
     @State private var isScanning = false
     @State private var showConfirm = false
-    @State private var lastResult: String?
+    @State private var lastResult: BilingualText?
 
     private var totalSelectedBytes: Int64 {
         items.filter(\.isSelected).reduce(0) { $0 + $1.sizeBytes }
@@ -27,33 +27,43 @@ struct StorageView: View {
             }
 
             if items.isEmpty && !isScanning {
-                Text("No files over 200 MB found yet — tap Scan / Файлов крупнее 200 МБ пока не найдено — нажмите «Сканировать»")
+                BilingualLabel(en: "No files over 200 MB found yet — tap Scan", ru: "Файлов крупнее 200 МБ пока не найдено — нажмите «Сканировать»")
                     .foregroundStyle(.secondary)
                     .padding()
             }
 
             if let lastResult {
-                Text(lastResult).padding(.bottom, 4)
+                BilingualLabel(lastResult).padding(.bottom, 4)
             }
 
             HStack {
-                Button("Scan Home Folder / Сканировать домашнюю папку") { scan() }
-                    .disabled(isScanning)
+                Button {
+                    scan()
+                } label: {
+                    BilingualLabel(en: "Scan Home Folder", ru: "Сканировать домашнюю папку")
+                }
+                .disabled(isScanning)
                 if isScanning { ProgressView() }
                 Spacer()
-                Text("Selected / Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))")
-                Button("Move Selected to Trash / Переместить выбранное в корзину") {
+                BilingualLabel(
+                    en: "Selected: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
+                    ru: "Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
+                    alignment: .trailing
+                )
+                Button {
                     showConfirm = true
+                } label: {
+                    BilingualLabel(en: "Move Selected to Trash", ru: "Переместить выбранное в корзину")
                 }
                 .disabled(totalSelectedBytes == 0)
             }
             .padding()
         }
-        .alert("Move to Trash? / Переместить в корзину?", isPresented: $showConfirm) {
+        .alert("Move to Trash?\nПереместить в корзину?", isPresented: $showConfirm) {
             Button("Cancel / Отмена", role: .cancel) {}
             Button("Move / Переместить", role: .destructive) { performCleanup() }
         } message: {
-            Text("Apps and bundles are moved whole — nothing is deleted from inside a working app. / Приложения и бандлы перемещаются целиком — файлы внутри рабочего приложения не трогаются.")
+            Text("Apps and bundles are moved whole — nothing is deleted from inside a working app.\nПриложения и бандлы перемещаются целиком — файлы внутри рабочего приложения не трогаются.")
         }
     }
 
@@ -74,11 +84,9 @@ struct StorageView: View {
         Task {
             let failures = await Task.detached { StorageScanner.moveToTrash(selected) }.value
             await MainActor.run {
-                if failures.isEmpty {
-                    lastResult = "Moved \(selected.count) items to Trash / Перемещено \(selected.count) объектов в корзину"
-                } else {
-                    lastResult = "\(failures.count) items failed / Не удалось переместить: \(failures.count)"
-                }
+                lastResult = failures.isEmpty
+                    ? BilingualText(en: "Moved \(selected.count) items to Trash", ru: "Перемещено \(selected.count) объектов в корзину")
+                    : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось переместить: \(failures.count)")
                 scan()
             }
         }

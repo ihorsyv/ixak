@@ -4,7 +4,7 @@ struct AutostartView: View {
     @State private var items: [AutostartItem] = []
     @State private var isScanning = false
     @State private var showConfirm = false
-    @State private var lastResult: String?
+    @State private var lastResult: BilingualText?
 
     private var selectedItems: [AutostartItem] {
         items.filter(\.isSelected)
@@ -12,7 +12,7 @@ struct AutostartView: View {
 
     var body: some View {
         VStack {
-            Text("System-owned items are shown for awareness but can't be removed here. / Системные элементы показаны для информации, но не могут быть удалены отсюда.")
+            BilingualLabel(en: "System-owned items are shown for awareness but can't be removed here.", ru: "Системные элементы показаны для информации, но не могут быть удалены отсюда.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
@@ -30,7 +30,7 @@ struct AutostartView: View {
                                     .truncationMode(.middle)
                             }
                             Spacer()
-                            Text(item.scope)
+                            BilingualLabel(item.scope, alignment: .trailing)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -40,33 +40,39 @@ struct AutostartView: View {
             }
 
             if items.isEmpty && !isScanning {
-                Text("No LaunchAgents/LaunchDaemons found / LaunchAgents/LaunchDaemons не найдены")
+                BilingualLabel(en: "No LaunchAgents/LaunchDaemons found", ru: "LaunchAgents/LaunchDaemons не найдены")
                     .foregroundStyle(.secondary)
                     .padding()
             }
 
             if let lastResult {
-                Text(lastResult).padding(.bottom, 4)
+                BilingualLabel(lastResult).padding(.bottom, 4)
             }
 
             HStack {
-                Button("Scan / Сканировать") { scan() }
-                    .disabled(isScanning)
+                Button {
+                    scan()
+                } label: {
+                    BilingualLabel(en: "Scan", ru: "Сканировать")
+                }
+                .disabled(isScanning)
                 if isScanning { ProgressView() }
                 Spacer()
-                Button("Disable & Trash Selected / Отключить и переместить в корзину") {
+                Button {
                     showConfirm = true
+                } label: {
+                    BilingualLabel(en: "Disable & Trash Selected", ru: "Отключить и переместить в корзину")
                 }
                 .disabled(selectedItems.isEmpty)
             }
             .padding()
         }
         .onAppear { scan() }
-        .alert("Disable and move to Trash? / Отключить и переместить в корзину?", isPresented: $showConfirm) {
+        .alert("Disable and move to Trash?\nОтключить и переместить в корзину?", isPresented: $showConfirm) {
             Button("Cancel / Отмена", role: .cancel) {}
             Button("Disable / Отключить", role: .destructive) { performRemoval() }
         } message: {
-            Text("Unloads the job and moves its plist to Trash. / Выгружает задачу и перемещает её plist в корзину.")
+            Text("Unloads the job and moves its plist to Trash.\nВыгружает задачу и перемещает её plist в корзину.")
         }
     }
 
@@ -87,11 +93,9 @@ struct AutostartView: View {
         Task {
             let failures = await Task.detached { AutostartScanner.remove(selected) }.value
             await MainActor.run {
-                if failures.isEmpty {
-                    lastResult = "Removed \(selected.count) items / Удалено \(selected.count) объектов"
-                } else {
-                    lastResult = "\(failures.count) items failed / Не удалось удалить: \(failures.count)"
-                }
+                lastResult = failures.isEmpty
+                    ? BilingualText(en: "Removed \(selected.count) items", ru: "Удалено \(selected.count) объектов")
+                    : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось удалить: \(failures.count)")
                 scan()
             }
         }

@@ -2,23 +2,29 @@ import SwiftUI
 
 struct MaintenanceView: View {
     @State private var isRunning: UUID?
-    @State private var results: [UUID: String] = [:]
+    @State private var results: [UUID: BilingualText] = [:]
 
     var body: some View {
         Form {
             ForEach(MaintenanceActions.all) { action in
-                Section(action.title) {
-                    Text(action.description)
+                Section {
+                    BilingualLabel(action.description)
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                    Button("Run / Запустить") { run(action) }
-                        .disabled(isRunning != nil)
+                    Button {
+                        run(action)
+                    } label: {
+                        BilingualLabel(en: "Run", ru: "Запустить")
+                    }
+                    .disabled(isRunning != nil)
                     if isRunning == action.id {
                         ProgressView()
                     }
                     if let result = results[action.id] {
-                        Text(result)
+                        BilingualLabel(result)
                     }
+                } header: {
+                    BilingualLabel(action.title)
                 }
             }
         }
@@ -38,7 +44,8 @@ struct MaintenanceView: View {
                 }
             } catch {
                 await MainActor.run {
-                    results[action.id] = error.localizedDescription
+                    let message = error.localizedDescription
+                    results[action.id] = BilingualText(en: message, ru: message)
                     isRunning = nil
                 }
             }

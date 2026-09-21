@@ -8,7 +8,7 @@ struct BatteryInfo {
     let currentCapacity: Int
     let isCharging: Bool
     let temperatureCelsius: Double?
-    let condition: String
+    let condition: BilingualText
 
     var healthPercent: Double {
         guard designCapacity > 0 else { return 0 }
@@ -51,13 +51,13 @@ struct BatteryInfo {
         }
 
         let permanentFailure = props["PermanentFailureStatus"] as? Int ?? 0
-        let condition: String
+        let condition: BilingualText
         if permanentFailure != 0 {
-            condition = "Service Recommended / Требуется обслуживание"
+            condition = BilingualText(en: "Service Recommended", ru: "Требуется обслуживание")
         } else if designCapacity > 0 && Double(maxCapacity) / Double(designCapacity) < 0.8 {
-            condition = "Replace Soon / Скоро замена"
+            condition = BilingualText(en: "Replace Soon", ru: "Скоро замена")
         } else {
-            condition = "Normal / В норме"
+            condition = BilingualText(en: "Normal", ru: "В норме")
         }
 
         return BatteryInfo(

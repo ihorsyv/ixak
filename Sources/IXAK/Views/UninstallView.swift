@@ -1,6 +1,9 @@
 import SwiftUI
 
 private enum UninstallMode: String, CaseIterable, Identifiable {
+    // A segmented Picker (NSSegmentedControl under the hood) only renders a
+    // single line and silently drops custom multi-font content, so this one
+    // spot keeps the plain "EN / RU" string instead of the two-line style.
     case app = "By App / По приложению"
     case orphaned = "Orphaned Leftovers / Осиротевшие файлы"
     var id: String { rawValue }
@@ -18,7 +21,7 @@ struct UninstallView: View {
     @State private var isScanningOrphaned = false
 
     @State private var showConfirm = false
-    @State private var lastResult: String?
+    @State private var lastResult: BilingualText?
 
     var body: some View {
         VStack {
@@ -36,15 +39,15 @@ struct UninstallView: View {
             }
 
             if let lastResult {
-                Text(lastResult).padding(.bottom, 4)
+                BilingualLabel(lastResult).padding(.bottom, 4)
             }
         }
         .onAppear { if apps.isEmpty { loadApps() } }
-        .alert("Move to Trash? / Переместить в корзину?", isPresented: $showConfirm) {
+        .alert("Move to Trash?\nПереместить в корзину?", isPresented: $showConfirm) {
             Button("Cancel / Отмена", role: .cancel) {}
             Button("Move / Переместить", role: .destructive) { performTrash() }
         } message: {
-            Text("Items go to Trash, not permanent deletion. / Файлы перемещаются в корзину, не удаляются безвозвратно.")
+            Text("Items go to Trash, not permanent deletion.\nФайлы перемещаются в корзину, не удаляются безвозвратно.")
         }
     }
 
@@ -67,7 +70,7 @@ struct UninstallView: View {
                 if let selectedApp {
                     VStack {
                         List {
-                            Section("Leftovers for \(selectedApp.name) / Хвосты \(selectedApp.name)") {
+                            Section {
                                 ForEach($leftovers) { $item in
                                     Toggle(isOn: $item.isSelected) {
                                         HStack {
@@ -77,24 +80,28 @@ struct UninstallView: View {
                                         }
                                     }
                                 }
+                            } header: {
+                                BilingualLabel(en: "Leftovers for \(selectedApp.name)", ru: "Хвосты \(selectedApp.name)")
                             }
                         }
                         if isScanningLeftovers { ProgressView() }
                         if leftovers.isEmpty && !isScanningLeftovers {
-                            Text("No leftovers found / Хвосты не найдены")
+                            BilingualLabel(en: "No leftovers found", ru: "Хвосты не найдены")
                                 .foregroundStyle(.secondary)
                                 .padding()
                         }
                         HStack {
                             Spacer()
-                            Button("Trash App + Selected Leftovers / Удалить приложение и выбранные хвосты") {
+                            Button {
                                 showConfirm = true
+                            } label: {
+                                BilingualLabel(en: "Trash App + Selected Leftovers", ru: "Удалить приложение и выбранные хвосты")
                             }
                         }
                         .padding()
                     }
                 } else {
-                    Text("Select an app on the left / Выберите приложение слева")
+                    BilingualLabel(en: "Select an app on the left", ru: "Выберите приложение слева")
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -118,18 +125,24 @@ struct UninstallView: View {
             }
 
             if orphaned.isEmpty && !isScanningOrphaned {
-                Text("No orphaned leftovers found yet — tap Scan / Осиротевшие файлы пока не найдены — нажмите «Найти»")
+                BilingualLabel(en: "No orphaned leftovers found yet — tap Scan", ru: "Осиротевшие файлы пока не найдены — нажмите «Найти»")
                     .foregroundStyle(.secondary)
                     .padding()
             }
 
             HStack {
-                Button("Scan for Orphaned Leftovers / Найти осиротевшие файлы") { scanOrphaned() }
-                    .disabled(isScanningOrphaned)
+                Button {
+                    scanOrphaned()
+                } label: {
+                    BilingualLabel(en: "Scan for Orphaned Leftovers", ru: "Найти осиротевшие файлы")
+                }
+                .disabled(isScanningOrphaned)
                 if isScanningOrphaned { ProgressView() }
                 Spacer()
-                Button("Move Selected to Trash / Переместить выбранное в корзину") {
+                Button {
                     showConfirm = true
+                } label: {
+                    BilingualLabel(en: "Move Selected to Trash", ru: "Переместить выбранное в корзину")
                 }
                 .disabled(!orphaned.contains { $0.isSelected })
             }
@@ -185,8 +198,8 @@ struct UninstallView: View {
                 let totalFailures = failureCount + failures.count
                 await MainActor.run {
                     lastResult = totalFailures == 0
-                        ? "Removed \(app.name) and \(selectedLeftovers.count) leftovers / Удалено \(app.name) и \(selectedLeftovers.count) хвостов"
-                        : "\(totalFailures) items failed / Не удалось удалить: \(totalFailures)"
+                        ? BilingualText(en: "Removed \(app.name) and \(selectedLeftovers.count) leftovers", ru: "Удалено \(app.name) и \(selectedLeftovers.count) хвостов")
+                        : BilingualText(en: "\(totalFailures) items failed", ru: "Не удалось удалить: \(totalFailures)")
                     selectedApp = nil
                     leftovers = []
                     loadApps()
@@ -197,11 +210,9 @@ struct UninstallView: View {
             Task {
                 let failures = await Task.detached { UninstallerScanner.moveToTrash(selected) }.value
                 await MainActor.run {
-                    if failures.isEmpty {
-                        lastResult = "Moved \(selected.count) items to Trash / Перемещено \(selected.count) объектов в корзину"
-                    } else {
-                        lastResult = "\(failures.count) items failed / Не удалось переместить: \(failures.count)"
-                    }
+                    lastResult = failures.isEmpty
+                        ? BilingualText(en: "Moved \(selected.count) items to Trash", ru: "Перемещено \(selected.count) объектов в корзину")
+                        : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось переместить: \(failures.count)")
                     scanOrphaned()
                 }
             }

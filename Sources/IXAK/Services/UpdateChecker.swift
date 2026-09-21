@@ -4,7 +4,7 @@ import Foundation
 enum UpdateCheckResult {
     case upToDate
     case updateAvailable(latestSHA: String, pkgURL: URL)
-    case failed(String)
+    case failed(BilingualText)
 }
 
 enum UpdateInstallError: LocalizedError {
@@ -28,7 +28,7 @@ enum UpdateChecker {
     static func check() async -> UpdateCheckResult {
         guard let builtSHA = Bundle.main.object(forInfoDictionaryKey: "IXAKGitCommit") as? String,
               !builtSHA.isEmpty, builtSHA != "unknown" else {
-            return .failed("Build commit not recorded / Коммит сборки не записан")
+            return .failed(BilingualText(en: "Build commit not recorded", ru: "Коммит сборки не записан"))
         }
 
         var request = URLRequest(url: latestReleaseURL)
@@ -37,12 +37,12 @@ enum UpdateChecker {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-                return .failed("GitHub request failed / Запрос к GitHub не удался")
+                return .failed(BilingualText(en: "GitHub request failed", ru: "Запрос к GitHub не удался"))
             }
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let tagName = json["tag_name"] as? String,
                   let assets = json["assets"] as? [[String: Any]] else {
-                return .failed("Unexpected response / Неожиданный ответ")
+                return .failed(BilingualText(en: "Unexpected response", ru: "Неожиданный ответ"))
             }
 
             let latestSHA = tagName.hasPrefix("build-") ? String(tagName.dropFirst("build-".count)) : tagName
@@ -53,12 +53,13 @@ enum UpdateChecker {
             guard let pkgAsset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".pkg") == true }),
                   let urlString = pkgAsset["browser_download_url"] as? String,
                   let pkgURL = URL(string: urlString) else {
-                return .failed("Release has no .pkg asset / В релизе нет .pkg")
+                return .failed(BilingualText(en: "Release has no .pkg asset", ru: "В релизе нет .pkg"))
             }
 
             return .updateAvailable(latestSHA: latestSHA, pkgURL: pkgURL)
         } catch {
-            return .failed(error.localizedDescription)
+            let message = error.localizedDescription
+            return .failed(BilingualText(en: message, ru: message))
         }
     }
 
@@ -69,7 +70,7 @@ enum UpdateChecker {
     static func downloadAndOpenInstaller(from url: URL) async throws {
         let (tempURL, response) = try await URLSession.shared.download(from: url)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw UpdateInstallError.downloadFailed("Download failed / Загрузка не удалась")
+            throw UpdateInstallError.downloadFailed("Download failed")
         }
 
         let destination = FileManager.default.temporaryDirectory

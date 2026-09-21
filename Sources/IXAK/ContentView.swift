@@ -7,42 +7,42 @@ struct ContentView: View {
         TabView {
             DiagnosticsView()
                 .tabItem {
-                    Label("Diagnostics / Диагностика", systemImage: "waveform.path.ecg")
+                    Label("Diagnostics\nДиагностика", systemImage: "waveform.path.ecg")
                 }
 
             BatteryView()
                 .tabItem {
-                    Label("Battery / Батарея", systemImage: "battery.100")
+                    Label("Battery\nБатарея", systemImage: "battery.100")
                 }
 
             CleanupView()
                 .tabItem {
-                    Label("Cleanup / Чистка", systemImage: "trash")
+                    Label("Cleanup\nЧистка", systemImage: "trash")
                 }
 
             StorageView()
                 .tabItem {
-                    Label("Storage / Хранилище", systemImage: "internaldrive")
+                    Label("Storage\nХранилище", systemImage: "internaldrive")
                 }
 
             UninstallView()
                 .tabItem {
-                    Label("Uninstall / Удаление", systemImage: "app.badge.checkmark")
+                    Label("Uninstall\nУдаление", systemImage: "app.badge.checkmark")
                 }
 
             AutostartView()
                 .tabItem {
-                    Label("Autostart / Автозапуск", systemImage: "power")
+                    Label("Autostart\nАвтозапуск", systemImage: "power")
                 }
 
             MaintenanceView()
                 .tabItem {
-                    Label("Maintenance / Обслуживание", systemImage: "wrench.and.screwdriver")
+                    Label("Maintenance\nОбслуживание", systemImage: "wrench.and.screwdriver")
                 }
 
             AboutView()
                 .tabItem {
-                    Label("About / О программе", systemImage: "info.circle")
+                    Label("About\nО программе", systemImage: "info.circle")
                 }
         }
         .onAppear {

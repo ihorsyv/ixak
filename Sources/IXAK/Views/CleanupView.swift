@@ -4,7 +4,7 @@ struct CleanupView: View {
     @State private var categories: [CleanupCategory] = []
     @State private var isScanning = false
     @State private var showConfirm = false
-    @State private var lastResult: String?
+    @State private var lastResult: BilingualText?
 
     private var totalSelectedBytes: Int64 {
         categories.reduce(0) { $0 + $1.totalSelectedBytes }
@@ -14,7 +14,7 @@ struct CleanupView: View {
         VStack {
             List {
                 ForEach($categories) { $category in
-                    Section(category.name) {
+                    Section {
                         ForEach($category.items) { $item in
                             Toggle(isOn: $item.isSelected) {
                                 HStack {
@@ -24,39 +24,51 @@ struct CleanupView: View {
                                 }
                             }
                         }
+                    } header: {
+                        BilingualLabel(category.name)
                     }
                 }
             }
 
             if categories.isEmpty && !isScanning {
-                Text("No items found in safe locations / В безопасных категориях ничего не найдено")
+                BilingualLabel(en: "No items found in safe locations", ru: "В безопасных категориях ничего не найдено")
                     .foregroundStyle(.secondary)
                     .padding()
             }
 
             if let lastResult {
-                Text(lastResult).padding(.bottom, 4)
+                BilingualLabel(lastResult).padding(.bottom, 4)
             }
 
             HStack {
-                Button("Scan / Сканировать") { scan() }
-                    .disabled(isScanning)
+                Button {
+                    scan()
+                } label: {
+                    BilingualLabel(en: "Scan", ru: "Сканировать")
+                }
+                .disabled(isScanning)
                 if isScanning { ProgressView() }
                 Spacer()
-                Text("Selected / Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))")
-                Button("Move Selected to Trash / Переместить выбранное в корзину") {
+                BilingualLabel(
+                    en: "Selected: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
+                    ru: "Выбрано: \(ByteCountFormatter.string(fromByteCount: totalSelectedBytes, countStyle: .file))",
+                    alignment: .trailing
+                )
+                Button {
                     showConfirm = true
+                } label: {
+                    BilingualLabel(en: "Move Selected to Trash", ru: "Переместить выбранное в корзину")
                 }
                 .disabled(totalSelectedBytes == 0)
             }
             .padding()
         }
         .onAppear { scan() }
-        .alert("Move to Trash? / Переместить в корзину?", isPresented: $showConfirm) {
+        .alert("Move to Trash?\nПереместить в корзину?", isPresented: $showConfirm) {
             Button("Cancel / Отмена", role: .cancel) {}
             Button("Move / Переместить", role: .destructive) { performCleanup() }
         } message: {
-            Text("Items go to Trash, not permanent deletion. / Файлы перемещаются в корзину, не удаляются безвозвратно.")
+            Text("Items go to Trash, not permanent deletion.\nФайлы перемещаются в корзину, не удаляются безвозвратно.")
         }
     }
 
@@ -77,11 +89,9 @@ struct CleanupView: View {
         Task {
             let failures = await Task.detached { CleanupScanner.moveToTrash(selected) }.value
             await MainActor.run {
-                if failures.isEmpty {
-                    lastResult = "Moved \(selected.count) items to Trash / Перемещено \(selected.count) объектов в корзину"
-                } else {
-                    lastResult = "\(failures.count) items failed / Не удалось переместить: \(failures.count)"
-                }
+                lastResult = failures.isEmpty
+                    ? BilingualText(en: "Moved \(selected.count) items to Trash", ru: "Перемещено \(selected.count) объектов в корзину")
+                    : BilingualText(en: "\(failures.count) items failed", ru: "Не удалось переместить: \(failures.count)")
                 scan()
             }
         }

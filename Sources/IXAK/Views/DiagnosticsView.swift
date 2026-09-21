@@ -12,11 +12,11 @@ struct DiagnosticsView: View {
     @State private var lastAverageLoad: Double?
 
     @State private var isRunningRAM = false
-    @State private var ramResult: String?
+    @State private var ramResult: BilingualText?
     @State private var ramPassed: Bool?
 
     @State private var isRunningDisk = false
-    @State private var diskResult: String?
+    @State private var diskResult: BilingualText?
     @State private var diskError: String?
     @State private var lastWriteMBps: Double?
     @State private var lastReadMBps: Double?
@@ -28,68 +28,89 @@ struct DiagnosticsView: View {
 
     var body: some View {
         Form {
-            Section("CPU Stress Test / Нагрузочный тест CPU") {
+            Section {
                 if isRunningCPU {
-                    Text("Progress / Прогресс: \(Int(elapsedFraction * 100))%")
+                    BilingualLabel(en: "Progress: \(Int(elapsedFraction * 100))%", ru: "Прогресс: \(Int(elapsedFraction * 100))%")
                     ProgressView(value: elapsedFraction, total: 1)
-                    Text("Live load / Текущая загрузка: \(Int(cpuLoad))%")
+                    BilingualLabel(en: "Live load: \(Int(cpuLoad))%", ru: "Текущая загрузка: \(Int(cpuLoad))%")
                         .foregroundStyle(.secondary)
                 }
-                Stepper("Duration / Длительность: \(Int(cpuDuration))s", value: $cpuDuration, in: 5...300, step: 5)
-                Button(isRunningCPU ? "Stop / Остановить" : "Run CPU Test / Запустить тест CPU") {
+                Stepper(value: $cpuDuration, in: 5...300, step: 5) {
+                    BilingualLabel(en: "Duration: \(Int(cpuDuration))s", ru: "Длительность: \(Int(cpuDuration))s")
+                }
+                Button {
                     if isRunningCPU {
                         stressTest.cancel()
                     } else {
                         runCPUTest()
                     }
+                } label: {
+                    if isRunningCPU {
+                        BilingualLabel(en: "Stop", ru: "Остановить")
+                    } else {
+                        BilingualLabel(en: "Run CPU Test", ru: "Запустить тест CPU")
+                    }
                 }
                 if let lastAverageLoad {
-                    Text("Average load / Средняя загрузка: \(Int(lastAverageLoad))%")
+                    BilingualLabel(en: "Average load: \(Int(lastAverageLoad))%", ru: "Средняя загрузка: \(Int(lastAverageLoad))%")
                     if let hint = cpuRecommendation(averageLoad: lastAverageLoad) {
-                        Text(hint)
+                        BilingualLabel(hint)
                             .font(.callout)
                             .foregroundStyle(.orange)
                     }
                 }
+            } header: {
+                BilingualLabel(en: "CPU Stress Test", ru: "Нагрузочный тест CPU")
             }
 
-            Section("RAM Test / Тест памяти") {
-                Button("Run RAM Test (1 GB) / Запустить тест RAM (1 ГБ)") {
+            Section {
+                Button {
                     runRAMTest()
+                } label: {
+                    BilingualLabel(en: "Run RAM Test (1 GB)", ru: "Запустить тест RAM (1 ГБ)")
                 }
                 .disabled(isRunningRAM)
                 if isRunningRAM {
                     ProgressView()
                 }
                 if let ramResult {
-                    Text(ramResult)
+                    BilingualLabel(ramResult)
                 }
                 if ramPassed == false {
-                    Text("Recommendation / Рекомендация: back up your data and run Apple Diagnostics (restart, hold D). Repeated failures suggest a hardware RAM fault. / Сделайте бэкап данных и запустите Apple Diagnostics (перезагрузка с зажатой D). Повторяющиеся сбои указывают на аппаратную неисправность памяти.")
-                        .font(.callout)
-                        .foregroundStyle(.red)
+                    BilingualLabel(
+                        en: "Recommendation: back up your data and run Apple Diagnostics (restart, hold D). Repeated failures suggest a hardware RAM fault.",
+                        ru: "Рекомендация: сделайте бэкап данных и запустите Apple Diagnostics (перезагрузка с зажатой D). Повторяющиеся сбои указывают на аппаратную неисправность памяти."
+                    )
+                    .font(.callout)
+                    .foregroundStyle(.red)
                 }
+            } header: {
+                BilingualLabel(en: "RAM Test", ru: "Тест памяти")
             }
 
-            Section("Disk Speed / Скорость диска") {
-                Button("Run Disk Test (512 MB) / Запустить тест диска (512 МБ)") {
+            Section {
+                Button {
                     runDiskTest()
+                } label: {
+                    BilingualLabel(en: "Run Disk Test (512 MB)", ru: "Запустить тест диска (512 МБ)")
                 }
                 .disabled(isRunningDisk)
                 if isRunningDisk {
                     ProgressView()
                 }
                 if let diskResult {
-                    Text(diskResult)
+                    BilingualLabel(diskResult)
                 }
                 if let diskError {
                     Text(diskError).foregroundStyle(.red)
                 }
                 if let hint = diskRecommendation() {
-                    Text(hint)
+                    BilingualLabel(hint)
                         .font(.callout)
                         .foregroundStyle(.orange)
                 }
+            } header: {
+                BilingualLabel(en: "Disk Speed", ru: "Скорость диска")
             }
         }
         .formStyle(.grouped)
@@ -97,15 +118,21 @@ struct DiagnosticsView: View {
         .onDisappear { monitorTimer?.invalidate() }
     }
 
-    private func cpuRecommendation(averageLoad: Double) -> String? {
+    private func cpuRecommendation(averageLoad: Double) -> BilingualText? {
         guard averageLoad < 70 else { return nil }
-        return "Average load stayed below 70% — likely other apps competing for CPU, or thermal throttling. Close background apps and retry. / Средняя загрузка ниже 70% — вероятно, другие приложения тоже используют CPU, либо тротлинг по температуре. Закройте фоновые приложения и повторите тест."
+        return BilingualText(
+            en: "Average load stayed below 70% — likely other apps competing for CPU, or thermal throttling. Close background apps and retry.",
+            ru: "Средняя загрузка ниже 70% — вероятно, другие приложения тоже используют CPU, либо тротлинг по температуре. Закройте фоновые приложения и повторите тест."
+        )
     }
 
-    private func diskRecommendation() -> String? {
+    private func diskRecommendation() -> BilingualText? {
         guard let write = lastWriteMBps, let read = lastReadMBps else { return nil }
         guard write < 300 || read < 300 else { return nil }
-        return "Speeds below 300 MB/s are slow for an internal SSD — check free disk space, run Disk Utility First Aid, or confirm this isn't an external/network drive. / Скорость ниже 300 МБ/с — это медленно для внутреннего SSD. Проверьте свободное место, запустите First Aid в Disk Utility, либо убедитесь, что это не внешний/сетевой диск."
+        return BilingualText(
+            en: "Speeds below 300 MB/s are slow for an internal SSD — check free disk space, run Disk Utility First Aid, or confirm this isn't an external/network drive.",
+            ru: "Скорость ниже 300 МБ/с — это медленно для внутреннего SSD. Проверьте свободное место, запустите First Aid в Disk Utility, либо убедитесь, что это не внешний/сетевой диск."
+        )
     }
 
     private func startMonitoring() {
@@ -146,8 +173,8 @@ struct DiagnosticsView: View {
             await MainActor.run {
                 ramPassed = passed
                 ramResult = passed
-                    ? "Passed / Пройден ✓"
-                    : "FAILED — data mismatch / ОШИБКА — несовпадение данных"
+                    ? BilingualText(en: "Passed ✓", ru: "Пройден ✓")
+                    : BilingualText(en: "FAILED — data mismatch", ru: "ОШИБКА — несовпадение данных")
                 isRunningRAM = false
             }
         }
@@ -164,7 +191,10 @@ struct DiagnosticsView: View {
             do {
                 let (write, read) = try await Task.detached { try test.runDiskSpeed() }.value
                 await MainActor.run {
-                    diskResult = String(format: "Write / Запись: %.0f MB/s, Read / Чтение: %.0f MB/s", write, read)
+                    diskResult = BilingualText(
+                        en: String(format: "Write: %.0f MB/s, Read: %.0f MB/s", write, read),
+                        ru: String(format: "Запись: %.0f МБ/с, Чтение: %.0f МБ/с", write, read)
+                    )
                     lastWriteMBps = write
                     lastReadMBps = read
                     isRunningDisk = false

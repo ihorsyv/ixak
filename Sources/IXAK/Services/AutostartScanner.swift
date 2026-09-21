@@ -4,7 +4,7 @@ struct AutostartItem: Identifiable {
     let id = UUID()
     let url: URL
     let label: String
-    let scope: String
+    let scope: BilingualText
     var isSelected: Bool = false
 
     var isWritable: Bool {
@@ -18,12 +18,12 @@ struct AutostartItem: Identifiable {
 /// current macOS, so they're intentionally out of scope; LaunchAgents and
 /// LaunchDaemons cover what tools like KnockKnock mainly surface anyway.
 enum AutostartScanner {
-    private static func locations() -> [(scope: String, url: URL)] {
+    private static func locations() -> [(scope: BilingualText, url: URL)] {
         let home = FileManager.default.homeDirectoryForCurrentUser
         return [
-            ("User / Пользователь", home.appendingPathComponent("Library/LaunchAgents")),
-            ("System / Система", URL(fileURLWithPath: "/Library/LaunchAgents")),
-            ("System / Система", URL(fileURLWithPath: "/Library/LaunchDaemons")),
+            (BilingualText(en: "User", ru: "Пользователь"), home.appendingPathComponent("Library/LaunchAgents")),
+            (BilingualText(en: "System", ru: "Система"), URL(fileURLWithPath: "/Library/LaunchAgents")),
+            (BilingualText(en: "System", ru: "Система"), URL(fileURLWithPath: "/Library/LaunchDaemons")),
         ]
     }
 
