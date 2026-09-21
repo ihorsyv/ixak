@@ -182,11 +182,11 @@ struct UninstallView: View {
                     failureCount += 1
                 }
                 let failures = await Task.detached { UninstallerScanner.moveToTrash(selectedLeftovers) }.value
-                failureCount += failures.count
+                let totalFailures = failureCount + failures.count
                 await MainActor.run {
-                    lastResult = failureCount == 0
+                    lastResult = totalFailures == 0
                         ? "Removed \(app.name) and \(selectedLeftovers.count) leftovers / Удалено \(app.name) и \(selectedLeftovers.count) хвостов"
-                        : "\(failureCount) items failed / Не удалось удалить: \(failureCount)"
+                        : "\(totalFailures) items failed / Не удалось удалить: \(totalFailures)"
                     selectedApp = nil
                     leftovers = []
                     loadApps()
