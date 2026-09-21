@@ -1,27 +1,35 @@
 #!/bin/bash
-# Builds a double-clickable IXAK Installer.app: compiled from
-# Installer.applescript via osacompile (ships with every Mac, nothing to
-# install), with the universal IXAK.app embedded as a resource. On launch
-# it asks the user where to install, copies the app there, adds a Desktop
-# shortcut, and deletes itself. Fully offline.
+# Builds a standard macOS .pkg installer for IXAK.app: a single file that
+# survives Telegram/AirDrop transfer intact (no folder/zip round trip to
+# lose permissions in), opens in the familiar Installer.app wizard, and
+# installs to /Applications. The postinstall script (Scripts/pkg-scripts)
+# clears quarantine, restores +x and re-signs ad-hoc, then adds a Desktop
+# shortcut for the logged-in user — no Terminal needed on the other end.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 ./Scripts/build_app.sh release --universal
 
-INSTALLER_DIR="build/IXAK Installer.app"
-rm -rf "$INSTALLER_DIR"
+VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
+IDENTIFIER="com.ihorsyvash.ixak.installer"
 
-osacompile -o "$INSTALLER_DIR" Scripts/Installer.applescript
+PKGROOT="build/pkgroot"
+rm -rf "$PKGROOT"
+mkdir -p "$PKGROOT/Applications"
+cp -R "build/IXAK.app" "$PKGROOT/Applications/IXAK.app"
 
-cp -R "build/IXAK.app" "$INSTALLER_DIR/Contents/Resources/IXAK.app"
-cp "Resources/AppIcon.icns" "$INSTALLER_DIR/Contents/Resources/applet.icns"
+OUT="build/IXAK Installer.pkg"
+rm -f "$OUT"
 
-# Copying files into the applet after osacompile invalidates its ad-hoc seal.
-# On Apple Silicon an app with a broken seal is killed at launch, so it must
-# be re-signed after the resources are in place — not before.
-xattr -cr "$INSTALLER_DIR"
-codesign --force --deep -s - "$INSTALLER_DIR"
+pkgbuild \
+    --root "$PKGROOT" \
+    --scripts Scripts/pkg-scripts \
+    --identifier "$IDENTIFIER" \
+    --version "$VERSION" \
+    --install-location / \
+    "$OUT"
 
-echo "Built '$INSTALLER_DIR'"
-echo "Zip it for transfer: (cd build && zip -r -y 'IXAK Installer.zip' 'IXAK Installer.app')"
+rm -rf "$PKGROOT"
+
+echo "Built '$OUT'"
+echo "Send it as-is (Telegram, AirDrop, etc.) — it's one file, no zip needed."

@@ -15,8 +15,10 @@ struct AboutView: View {
     var body: some View {
         Form {
             Section("About / О программе") {
-                Text("IXAK is an offline macOS utility for hardware diagnostics, battery health, and safe cache cleanup. / IXAK — офлайн-утилита для macOS: диагностика железа, здоровье батареи и безопасная чистка кэшей.")
-                Text("Built by ihorsyv for personal use only — not distributed or supported as a product. / Сделано ihorsyv исключительно для личного использования — не распространяется и не поддерживается как продукт.")
+                Text("IXAK is an offline macOS utility for hardware diagnostics, battery health, and safe cache cleanup.\nIXAK — офлайн-утилита для macOS: диагностика железа, здоровье батареи и безопасная чистка кэшей.")
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Built by ihorsyv for personal use only — not distributed or supported as a product.\nСделано ihorsyv исключительно для личного использования — не распространяется и не поддерживается как продукт.")
+                    .fixedSize(horizontal: false, vertical: true)
                     .foregroundStyle(.secondary)
             }
 

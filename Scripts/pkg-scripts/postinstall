@@ -1,0 +1,25 @@
+#!/bin/bash
+# Runs as root after pkgbuild has copied IXAK.app into /Applications.
+# Undoes whatever Telegram/AirDrop/zip did to the payload on its way here
+# (dropped quarantine flag, lost +x bit, invalidated the ad-hoc signature)
+# and drops a Desktop shortcut for the person who's logged in — not root.
+set -e
+
+APP="/Applications/IXAK.app"
+
+xattr -cr "$APP" || true
+chmod +x "$APP/Contents/MacOS/IXAK" || true
+codesign --force --deep -s - "$APP" || true
+
+CONSOLE_USER=$(stat -f%Su /dev/console)
+if [ -n "$CONSOLE_USER" ] && [ "$CONSOLE_USER" != "root" ]; then
+    USER_HOME=$(eval echo "~$CONSOLE_USER")
+    DESKTOP="$USER_HOME/Desktop"
+    if [ -d "$DESKTOP" ]; then
+        rm -f "$DESKTOP/IXAK.app"
+        ln -s "$APP" "$DESKTOP/IXAK.app"
+        chown -h "$CONSOLE_USER" "$DESKTOP/IXAK.app" 2>/dev/null || true
+    fi
+fi
+
+exit 0
