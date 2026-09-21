@@ -22,6 +22,10 @@ struct MaintenanceView: View {
                     }
                     if let result = results[action.id] {
                         BilingualLabel(result)
+                            .bold()
+                            .padding(8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(.tertiary.opacity(0.2), in: RoundedRectangle(cornerRadius: 6))
                     }
                 } header: {
                     BilingualLabel(action.title)

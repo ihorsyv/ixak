@@ -50,7 +50,25 @@ fi
 # the executable bit and always invalidates any prior signature, so both are
 # reasserted here rather than left to whoever builds/repackages downstream.
 chmod +x "$APP_DIR/Contents/MacOS/IXAK"
-xattr -cr "$APP_DIR"
-codesign --force --deep -s - "$APP_DIR"
+
+# This project lives under ~/Desktop, which iCloud Drive syncs — its file
+# provider daemon can re-tag the bundle with FinderInfo/provenance xattrs
+# within a fraction of a second of it landing on disk, and codesign
+# rejects a signed bundle carrying those. A single strip-then-sign can
+# lose that race, so retry a few times rather than fail the whole build
+# over a timing fluke.
+SIGNED=0
+for attempt in 1 2 3 4 5; do
+    xattr -cr "$APP_DIR"
+    if codesign --force --deep -s - "$APP_DIR" 2>/dev/null && codesign --verify --deep --strict "$APP_DIR" 2>/dev/null; then
+        SIGNED=1
+        break
+    fi
+    sleep 0.3
+done
+if [ "$SIGNED" -ne 1 ]; then
+    echo "error: couldn't get a clean code signature after 5 attempts (iCloud kept re-tagging the bundle) — try again." >&2
+    exit 1
+fi
 
 echo "Built $APP_DIR (commit $GIT_COMMIT)"

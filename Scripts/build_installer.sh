@@ -38,8 +38,21 @@ fi
 OUT="build/IXAK Installer.pkg"
 rm -f "$OUT"
 
+# pkgbuild's auto-inferred component plist marks .app bundles as
+# relocatable by default: if Launch Services already knows a bundle with
+# this identifier anywhere on disk (e.g. a copy run directly from this
+# very build/ folder during development), the installer silently
+# redirects the install there instead of /Applications — postinstall then
+# operates on a hardcoded /Applications/IXAK.app that was never written,
+# and fails on every step. Forcing BundleIsRelocatable off makes the
+# payload always land at the path the package actually declares.
+COMPONENT_PLIST="$STAGING/component.plist"
+pkgbuild --analyze --root "$PKGROOT" "$COMPONENT_PLIST"
+/usr/libexec/PlistBuddy -c "Set :0:BundleIsRelocatable false" "$COMPONENT_PLIST"
+
 pkgbuild \
     --root "$PKGROOT" \
+    --component-plist "$COMPONENT_PLIST" \
     --scripts Scripts/pkg-scripts \
     --identifier "$IDENTIFIER" \
     --version "$VERSION" \

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 private enum UninstallMode: CaseIterable, Identifiable {
@@ -39,10 +40,17 @@ struct UninstallView: View {
             .labelsHidden()
             .padding([.horizontal, .top])
 
-            BilingualLabel(
-                en: "Some leftovers live inside another app's sandboxed container — deleting those needs Full Disk Access for IXAK (System Settings → Privacy & Security → Full Disk Access).",
-                ru: "Часть хвостов лежит в песочнице другого приложения — для их удаления нужен доступ Full Disk Access для IXAK (Настройки системы → Конфиденциальность и безопасность → Полный доступ к диску)."
-            )
+            HStack {
+                BilingualLabel(
+                    en: "Some leftovers live inside another app's sandboxed container — deleting those needs Full Disk Access for IXAK.",
+                    ru: "Часть хвостов лежит в песочнице другого приложения — для их удаления нужен доступ Full Disk Access для IXAK."
+                )
+                Button {
+                    openFullDiskAccessSettings()
+                } label: {
+                    BilingualLabel(en: "Open Settings", ru: "Открыть настройки")
+                }
+            }
             .font(.caption)
             .foregroundStyle(.secondary)
             .padding(.horizontal)
@@ -167,6 +175,11 @@ struct UninstallView: View {
 
     private func failureReason(_ failures: [URL: Error]) -> String {
         failures.values.first?.localizedDescription ?? "?"
+    }
+
+    private func openFullDiskAccessSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     private func loadApps() {
