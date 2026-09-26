@@ -3,6 +3,9 @@ import Foundation
 
 enum UpdateCheckResult {
     case upToDate
+    /// Built locally with uncommitted changes — it has no matching release,
+    /// so comparing SHAs would always (wrongly) report an update.
+    case localBuild
     case updateAvailable(latestSHA: String, pkgURL: URL)
     case failed(BilingualText)
 }
@@ -29,6 +32,9 @@ enum UpdateChecker {
         guard let builtSHA = Bundle.main.object(forInfoDictionaryKey: "IXAKGitCommit") as? String,
               !builtSHA.isEmpty, builtSHA != "unknown" else {
             return .failed(BilingualText(en: "Build commit not recorded", ru: "Коммит сборки не записан"))
+        }
+        if builtSHA.hasSuffix("-dirty") {
+            return .localBuild
         }
 
         var request = URLRequest(url: latestReleaseURL)

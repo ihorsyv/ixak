@@ -5,6 +5,7 @@ struct AboutView: View {
     @State private var checkResult: UpdateCheckResult?
     @State private var isInstalling = false
     @State private var installError: BilingualText?
+    @State private var installerOpened = false
 
     private var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
@@ -67,6 +68,12 @@ struct AboutView: View {
                     case .upToDate:
                         BilingualLabel(en: "Up to date ✓", ru: "Установлена последняя версия ✓")
                             .foregroundStyle(.green)
+                    case .localBuild:
+                        BilingualLabel(
+                            en: "Local development build (uncommitted changes) — updates from GitHub don't apply to it.",
+                            ru: "Локальная сборка с незакоммиченными изменениями — обновления с GitHub к ней не применяются."
+                        )
+                        .foregroundStyle(.secondary)
                     case .updateAvailable(let sha, let pkgURL):
                         VStack(alignment: .leading, spacing: 4) {
                             BilingualLabel(en: "Update available (\(sha))", ru: "Доступно обновление (\(sha))")
@@ -76,9 +83,16 @@ struct AboutView: View {
                             } label: {
                                 BilingualLabel(en: "Install Update", ru: "Установить обновление")
                             }
-                            .disabled(isInstalling)
+                            .disabled(isInstalling || installerOpened)
                             if isInstalling {
                                 ProgressView()
+                            }
+                            if installerOpened {
+                                BilingualLabel(
+                                    en: "Installer opened. IXAK will now quit — open it again after installation finishes.",
+                                    ru: "Установщик открыт. IXAK сейчас закроется — откройте его снова после завершения установки."
+                                )
+                                .font(.callout)
                             }
                             if let installError {
                                 BilingualLabel(installError)
@@ -118,6 +132,12 @@ struct AboutView: View {
         Task {
             do {
                 try await UpdateChecker.downloadAndOpenInstaller(from: pkgURL)
+                // Quit so the next launch runs the new build — otherwise the
+                // Installer swaps the bundle under the running process and the
+                // window keeps showing the old version, looking like a failed update.
+                await MainActor.run { installerOpened = true }
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+                await MainActor.run { NSApp.terminate(nil) }
             } catch {
                 await MainActor.run {
                     let message = error.localizedDescription
