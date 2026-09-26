@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 struct ThisMacView: View {
     @AppStorage("ixak.language") private var language: AppLanguage = .ru
     @State private var info: SystemInfo?

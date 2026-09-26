@@ -109,6 +109,7 @@ final class DiagnosticsModel: ObservableObject {
     }
 }
 
+@MainActor
 struct DiagnosticsView: View {
     @ObservedObject var model: DiagnosticsModel
 

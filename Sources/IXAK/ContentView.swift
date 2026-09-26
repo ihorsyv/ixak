@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("ixak.language") private var language: AppLanguage = .ru
