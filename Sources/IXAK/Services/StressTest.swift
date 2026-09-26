@@ -57,6 +57,9 @@ final class StressTest: @unchecked Sendable {
     /// Allocates `megabytes` of RAM, fills it, then verifies the pattern.
     /// Returns true if every byte read back matches what was written.
     func runRAM(megabytes: Int) -> Bool {
+        // Reset here too: a stale flag from a stopped CPU test would
+        // otherwise abort the fill loop and report a false RAM failure.
+        setCancelled(false)
         let byteCount = megabytes * 1024 * 1024
         var buffer = [UInt8](repeating: 0, count: byteCount)
 

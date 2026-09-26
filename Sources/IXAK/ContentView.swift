@@ -3,10 +3,16 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("ixak.language") private var language: AppLanguage = .ru
+    @StateObject private var diagnostics = DiagnosticsModel()
 
     var body: some View {
         TabView {
-            DiagnosticsView()
+            ThisMacView()
+                .tabItem {
+                    Label(language == .en ? "This Mac" : "Этот Mac", systemImage: "laptopcomputer")
+                }
+
+            DiagnosticsView(model: diagnostics)
                 .tabItem {
                     Label(language == .en ? "Diagnostics" : "Диагностика", systemImage: "waveform.path.ecg")
                 }

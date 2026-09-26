@@ -3,6 +3,8 @@ import SwiftUI
 struct BatteryView: View {
     @State private var battery: BatteryInfo?
     @State private var noBattery = false
+    @State private var isRefreshing = false
+    @State private var lastUpdated: Date?
 
     var body: some View {
         Form {
@@ -74,10 +76,20 @@ struct BatteryView: View {
                 ProgressView()
             }
 
-            Button {
-                load()
-            } label: {
-                BilingualLabel(en: "Refresh", ru: "Обновить")
+            HStack {
+                Button {
+                    load()
+                } label: {
+                    BilingualLabel(en: "Refresh", ru: "Обновить")
+                }
+                .disabled(isRefreshing)
+                if isRefreshing {
+                    ProgressView().controlSize(.small)
+                } else if let lastUpdated {
+                    let time = lastUpdated.formatted(date: .omitted, time: .standard)
+                    BilingualLabel(en: "Updated at \(time)", ru: "Обновлено в \(time)")
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .formStyle(.grouped)
@@ -86,8 +98,19 @@ struct BatteryView: View {
     }
 
     private func load() {
-        battery = BatteryInfo.read()
-        noBattery = (battery == nil)
+        isRefreshing = true
+        Task {
+            // The IOKit read is near-instant and values rarely change between
+            // clicks, so without a visible beat the button looks dead. Hold the
+            // spinner briefly and stamp the time so a refresh is always visible.
+            async let minimumDelay: Void? = try? Task.sleep(nanoseconds: 400_000_000)
+            let info = BatteryInfo.read()
+            _ = await minimumDelay
+            battery = info
+            noBattery = (info == nil)
+            lastUpdated = Date()
+            isRefreshing = false
+        }
     }
 
     private func recommendation(for battery: BatteryInfo) -> BilingualText? {

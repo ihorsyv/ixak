@@ -6,6 +6,13 @@ struct LargeFileItem: Identifiable {
     let sizeBytes: Int64
     var isSelected: Bool = false
 
+    /// Set for library packages owned by an Apple app (Photos, Music, ...).
+    /// Trashing one wipes the whole library, so these are shown for
+    /// visibility but can't be selected — space is reclaimed in the app.
+    var managedBy: BilingualText? {
+        StorageScanner.managingApp(for: url)
+    }
+
     var sizeFormatted: String {
         ByteCountFormatter.string(fromByteCount: sizeBytes, countStyle: .file)
     }
@@ -18,6 +25,20 @@ struct LargeFileItem: Identifiable {
 /// sane unit to offer for removal is the whole bundle.
 enum StorageScanner {
     private static let maxResults = 300
+
+    private static let managedLibraries: [String: BilingualText] = [
+        "photoslibrary": BilingualText(en: "Photos", ru: "Фото"),
+        "photolibrary": BilingualText(en: "iPhoto", ru: "iPhoto"),
+        "migratedphotolibrary": BilingualText(en: "Photos", ru: "Фото"),
+        "aplibrary": BilingualText(en: "Aperture", ru: "Aperture"),
+        "musiclibrary": BilingualText(en: "Music", ru: "Музыка"),
+        "tvlibrary": BilingualText(en: "TV", ru: "TV"),
+        "imovielibrary": BilingualText(en: "iMovie", ru: "iMovie"),
+    ]
+
+    static func managingApp(for url: URL) -> BilingualText? {
+        managedLibraries[url.pathExtension.lowercased()]
+    }
 
     static func scan(minSizeBytes: Int64 = 200 * 1024 * 1024) -> [LargeFileItem] {
         let fm = FileManager.default
@@ -51,7 +72,7 @@ enum StorageScanner {
 
     static func moveToTrash(_ items: [LargeFileItem]) -> [URL: Error] {
         var failures: [URL: Error] = [:]
-        for item in items {
+        for item in items where item.managedBy == nil {
             do {
                 try FileManager.default.trashItem(at: item.url, resultingItemURL: nil)
             } catch {

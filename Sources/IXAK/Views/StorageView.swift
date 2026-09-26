@@ -17,13 +17,24 @@ struct StorageView: View {
                 ForEach($items) { $item in
                     Toggle(isOn: $item.isSelected) {
                         HStack {
-                            Text(item.url.path)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.url.path)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                if let app = item.managedBy {
+                                    BilingualLabel(
+                                        en: "Managed by the \(app.en) app — free up space inside \(app.en), not here",
+                                        ru: "Управляется приложением «\(app.ru)» — освобождайте место в самом приложении, не здесь"
+                                    )
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                }
+                            }
                             Spacer()
                             Text(item.sizeFormatted).foregroundStyle(.secondary)
                         }
                     }
+                    .disabled(item.managedBy != nil)
                 }
             }
 
