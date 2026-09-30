@@ -63,9 +63,10 @@ final class StressTest: @unchecked Sendable {
         let byteCount = megabytes * 1024 * 1024
         var buffer = [UInt8](repeating: 0, count: byteCount)
 
+        let cancelCheckStride = 1 << 20
         for i in 0..<byteCount {
             buffer[i] = UInt8(truncatingIfNeeded: i)
-            if isCancelled { return false }
+            if i % cancelCheckStride == 0, isCancelled { return false }
         }
 
         for i in 0..<byteCount {

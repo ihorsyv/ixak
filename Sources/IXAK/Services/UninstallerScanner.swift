@@ -65,6 +65,22 @@ enum UninstallerScanner {
         return apps.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
+    /// Same enumeration as `installedApps()` but skips `FileSizeUtil.directorySize`
+    /// (a full recursive disk walk per app) — for callers that only need bundle IDs.
+    private static func installedBundleIDs() -> Set<String> {
+        let fm = FileManager.default
+        var ids = Set<String>()
+        for dir in appDirectories() {
+            guard let entries = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else { continue }
+            for url in entries where url.pathExtension == "app" {
+                if let bundleID = Bundle(url: url)?.bundleIdentifier?.lowercased() {
+                    ids.insert(bundleID)
+                }
+            }
+        }
+        return ids
+    }
+
     /// Entries under the leftover directories whose name references the
     /// app's bundle identifier or display name.
     static func leftovers(for app: InstalledApp) -> [LeftoverItem] {
@@ -92,7 +108,7 @@ enum UninstallerScanner {
     ///   "com.microsoft.autoupdate2") — an exact-ID match alone would flag
     ///   live helper data from an app that's still installed.
     static func orphanedLeftovers() -> [LeftoverItem] {
-        let installedIDs = Set(installedApps().compactMap { $0.bundleID?.lowercased() })
+        let installedIDs = installedBundleIDs()
         let installedVendorPrefixes = Set(installedIDs.compactMap(vendorPrefix))
         guard let bundleIDPattern = try? NSRegularExpression(pattern: #"^[a-z0-9]+(\.[a-z0-9-]+){2,}$"#) else { return [] }
 
