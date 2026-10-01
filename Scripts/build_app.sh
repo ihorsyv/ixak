@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds IXAK.app — a proper macOS app bundle with icon and Info.plist —
+# Builds IXAK.app - a proper macOS app bundle with icon and Info.plist -
 # wrapping the SwiftPM executable. Fully offline, no external tools needed
 # beyond the Xcode command line tools already installed.
 #
@@ -51,7 +51,7 @@ fi
 # reasserted here rather than left to whoever builds/repackages downstream.
 chmod +x "$APP_DIR/Contents/MacOS/IXAK"
 
-# This project lives under ~/Desktop, which iCloud Drive syncs — its file
+# This project lives under ~/Desktop, which iCloud Drive syncs - its file
 # provider daemon can re-tag the bundle with FinderInfo/provenance xattrs
 # within a fraction of a second of it landing on disk, and codesign
 # rejects a signed bundle carrying those. A single strip-then-sign can
@@ -67,7 +67,7 @@ for attempt in 1 2 3 4 5; do
     sleep 0.3
 done
 if [ "$SIGNED" -ne 1 ]; then
-    echo "error: couldn't get a clean code signature after 5 attempts (iCloud kept re-tagging the bundle) — try again." >&2
+    echo "error: couldn't get a clean code signature after 5 attempts (iCloud kept re-tagging the bundle) - try again." >&2
     exit 1
 fi
 

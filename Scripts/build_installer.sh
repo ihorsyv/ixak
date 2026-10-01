@@ -4,7 +4,7 @@
 # lose permissions in), opens in the familiar Installer.app wizard, and
 # installs to /Applications. The postinstall script (Scripts/pkg-scripts)
 # clears quarantine, restores +x and re-signs ad-hoc, then adds a Desktop
-# shortcut for the logged-in user — no Terminal needed on the other end.
+# shortcut for the logged-in user - no Terminal needed on the other end.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
 IDENTIFIER="com.ihorsyvash.ixak.installer"
 
-# The project lives under ~/Desktop, which iCloud Drive syncs — its file
+# The project lives under ~/Desktop, which iCloud Drive syncs - its file
 # provider daemon re-tags any bundle sitting there with FinderInfo/
 # provenance xattrs, often within under a second of it landing on disk.
 # codesign rejects a signed bundle carrying those ("resource fork, Finder
@@ -31,7 +31,7 @@ cp -R "build/IXAK.app" "$PKGROOT/Applications/IXAK.app"
 xattr -cr "$PKGROOT/Applications/IXAK.app"
 codesign --force --deep -s - "$PKGROOT/Applications/IXAK.app"
 if ! codesign --verify --deep --strict "$PKGROOT/Applications/IXAK.app" 2>/dev/null; then
-    echo "error: IXAK.app still fails codesign verification after stripping xattrs — installer would be broken. Not packaging." >&2
+    echo "error: IXAK.app still fails codesign verification after stripping xattrs - installer would be broken. Not packaging." >&2
     exit 1
 fi
 
@@ -42,7 +42,7 @@ rm -f "$OUT"
 # relocatable by default: if Launch Services already knows a bundle with
 # this identifier anywhere on disk (e.g. a copy run directly from this
 # very build/ folder during development), the installer silently
-# redirects the install there instead of /Applications — postinstall then
+# redirects the install there instead of /Applications - postinstall then
 # operates on a hardcoded /Applications/IXAK.app that was never written,
 # and fails on every step. Forcing BundleIsRelocatable off makes the
 # payload always land at the path the package actually declares.
@@ -62,4 +62,4 @@ pkgbuild \
 cp "$STAGING/IXAK Installer.pkg" "$OUT"
 
 echo "Built '$OUT'"
-echo "Send it as-is (Telegram, AirDrop, etc.) — it's one file, no zip needed."
+echo "Send it as-is (Telegram, AirDrop, etc.) - it's one file, no zip needed."

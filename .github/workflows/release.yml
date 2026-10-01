@@ -3,7 +3,7 @@ name: Release
 # Builds the .pkg installer and publishes it as a GitHub Release on every
 # push to main, tagged build-<shortsha>. The app's "Install Update" button
 # (Sources/IXAK/Services/UpdateChecker.swift) reads /releases/latest to find
-# the newest .pkg — no extra setup needed here beyond this workflow existing.
+# the newest .pkg - no extra setup needed here beyond this workflow existing.
 on:
   push:
     branches: [main]

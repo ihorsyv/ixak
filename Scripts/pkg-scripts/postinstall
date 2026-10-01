@@ -2,7 +2,7 @@
 # Runs as root after pkgbuild has copied IXAK.app into /Applications.
 # Undoes whatever Telegram/AirDrop/zip did to the payload on its way here
 # (dropped quarantine flag, lost +x bit, invalidated the ad-hoc signature)
-# and drops a Desktop shortcut for the person who's logged in — not root.
+# and drops a Desktop shortcut for the person who's logged in - not root.
 set -e
 
 APP="/Applications/IXAK.app"
