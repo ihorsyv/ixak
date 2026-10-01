@@ -8,7 +8,7 @@ struct LargeFileItem: Identifiable {
 
     /// Set for library packages owned by an Apple app (Photos, Music, ...).
     /// Trashing one wipes the whole library, so these are shown for
-    /// visibility but can't be selected — space is reclaimed in the app.
+    /// visibility but can't be selected - space is reclaimed in the app.
     var managedBy: BilingualText? {
         StorageScanner.managingApp(for: url)
     }
@@ -20,7 +20,7 @@ struct LargeFileItem: Identifiable {
 
 /// Walks the user's home directory for anything above a size threshold.
 /// Packages (.app, .framework, .bundle, .kext, ...) are reported as a
-/// single opaque item at their total size rather than descended into —
+/// single opaque item at their total size rather than descended into -
 /// deleting one file out of a working app would break it, so the only
 /// sane unit to offer for removal is the whole bundle.
 enum StorageScanner {

@@ -23,8 +23,8 @@ struct StorageView: View {
                                     .truncationMode(.middle)
                                 if let app = item.managedBy {
                                     BilingualLabel(
-                                        en: "Managed by the \(app.en) app — free up space inside \(app.en), not here",
-                                        ru: "Управляется приложением «\(app.ru)» — освобождайте место в самом приложении, не здесь"
+                                        en: "Managed by the \(app.en) app - free up space inside \(app.en), not here",
+                                        ru: "Управляется приложением «\(app.ru)» - освобождайте место в самом приложении, не здесь"
                                     )
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -39,7 +39,7 @@ struct StorageView: View {
             }
 
             if items.isEmpty && !isScanning {
-                BilingualLabel(en: "No files over 200 MB found yet — tap Scan", ru: "Файлов крупнее 200 МБ пока не найдено — нажмите «Сканировать»")
+                BilingualLabel(en: "No files over 200 MB found yet - tap Scan", ru: "Файлов крупнее 200 МБ пока не найдено - нажмите «Сканировать»")
                     .foregroundStyle(.secondary)
                     .padding()
             }
@@ -74,7 +74,7 @@ struct StorageView: View {
             Button(language == .en ? "Cancel" : "Отмена", role: .cancel) {}
             Button(language == .en ? "Move" : "Переместить", role: .destructive) { performCleanup() }
         } message: {
-            Text(language == .en ? "Apps and bundles are moved whole — nothing is deleted from inside a working app." : "Приложения и бандлы перемещаются целиком — файлы внутри рабочего приложения не трогаются.")
+            Text(language == .en ? "Apps and bundles are moved whole - nothing is deleted from inside a working app." : "Приложения и бандлы перемещаются целиком - файлы внутри рабочего приложения не трогаются.")
         }
     }
 

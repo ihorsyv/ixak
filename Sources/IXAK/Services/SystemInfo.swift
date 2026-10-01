@@ -3,7 +3,7 @@ import Foundation
 import IOKit
 
 /// Everything shown on the "This Mac" tab. Gathered locally from sysctl,
-/// IOKit, NSScreen and one `system_profiler` call — no admin rights and no
+/// IOKit, NSScreen and one `system_profiler` call - no admin rights and no
 /// network access needed.
 struct SystemInfo {
     struct Display {
@@ -68,7 +68,7 @@ struct SystemInfo {
 
     var isAppleSilicon: Bool { architecture == "arm64" }
 
-    /// Runs the slow parts (system_profiler, security CLIs) — call off the
+    /// Runs the slow parts (system_profiler, security CLIs) - call off the
     /// main thread. Displays come from NSScreen, which is main-thread only.
     static func load(displays: [Display]) -> SystemInfo {
         let profile = SystemProfiler.read()

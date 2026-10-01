@@ -12,7 +12,7 @@ struct AutostartItem: Identifiable {
     }
 }
 
-/// Lists LaunchAgents/LaunchDaemons plists — the standard, publicly
+/// Lists LaunchAgents/LaunchDaemons plists - the standard, publicly
 /// documented autostart mechanism on macOS. Modern "Login Items" (System
 /// Settings > General > Login Items) have no public enumeration API on
 /// current macOS, so they're intentionally out of scope; LaunchAgents and
@@ -54,7 +54,7 @@ enum AutostartScanner {
     }
 
     /// Unloads the job (best-effort) and moves its plist to Trash. Only
-    /// meant to be called for items where isWritable is true — system items
+    /// meant to be called for items where isWritable is true - system items
     /// under /Library fail visibly here (returned in `failures`) rather
     /// than being silently skipped.
     static func remove(_ items: [AutostartItem]) -> [URL: Error] {

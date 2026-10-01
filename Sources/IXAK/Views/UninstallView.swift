@@ -42,8 +42,8 @@ struct UninstallView: View {
 
             HStack {
                 BilingualLabel(
-                    en: "Some leftovers live inside another app's sandboxed container — deleting those needs Full Disk Access for IXAK.",
-                    ru: "Часть хвостов лежит в песочнице другого приложения — для их удаления нужен доступ Full Disk Access для IXAK."
+                    en: "Some leftovers live inside another app's sandboxed container - deleting those needs Full Disk Access for IXAK.",
+                    ru: "Часть хвостов лежит в песочнице другого приложения - для их удаления нужен доступ Full Disk Access для IXAK."
                 )
                 Button {
                     openFullDiskAccessSettings()
@@ -148,7 +148,7 @@ struct UninstallView: View {
             }
 
             if orphaned.isEmpty && !isScanningOrphaned {
-                BilingualLabel(en: "No orphaned leftovers found yet — tap Scan", ru: "Осиротевшие файлы пока не найдены — нажмите «Найти»")
+                BilingualLabel(en: "No orphaned leftovers found yet - tap Scan", ru: "Осиротевшие файлы пока не найдены - нажмите «Найти»")
                     .foregroundStyle(.secondary)
                     .padding()
             }

@@ -24,7 +24,7 @@ struct LeftoverItem: Identifiable {
 }
 
 /// Finds installed .app bundles and, given one, the files it scatters
-/// across ~/Library — and separately, files that look like app leftovers
+/// across ~/Library - and separately, files that look like app leftovers
 /// but whose owning app isn't installed anywhere IXAK can see: leftovers
 /// from a past uninstall that only dragged the .app to Trash.
 enum UninstallerScanner {
@@ -66,7 +66,7 @@ enum UninstallerScanner {
     }
 
     /// Same enumeration as `installedApps()` but skips `FileSizeUtil.directorySize`
-    /// (a full recursive disk walk per app) — for callers that only need bundle IDs.
+    /// (a full recursive disk walk per app) - for callers that only need bundle IDs.
     private static func installedBundleIDs() -> Set<String> {
         let fm = FileManager.default
         var ids = Set<String>()
@@ -99,13 +99,13 @@ enum UninstallerScanner {
     /// Two safety filters beyond the exact-ID check:
     /// - com.apple.* is always excluded. Most of it is background daemons
     ///   (com.apple.homed, com.apple.remindd, ...) that never appear as a
-    ///   .app in /Applications yet are very much alive — flagging their
+    ///   .app in /Applications yet are very much alive - flagging their
     ///   caches/state as "orphaned" would be actively misleading.
     /// - A vendor-prefix match (first two dotted components, e.g.
     ///   "com.microsoft") also counts as installed, since helper processes
     ///   often write under a sibling ID to the app's own bundle ID (e.g.
     ///   "com.microsoft.autoupdate.fba" next to the app's
-    ///   "com.microsoft.autoupdate2") — an exact-ID match alone would flag
+    ///   "com.microsoft.autoupdate2") - an exact-ID match alone would flag
     ///   live helper data from an app that's still installed.
     static func orphanedLeftovers() -> [LeftoverItem] {
         let installedIDs = installedBundleIDs()

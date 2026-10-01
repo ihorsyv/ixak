@@ -3,7 +3,7 @@ import Foundation
 
 enum UpdateCheckResult {
     case upToDate
-    /// Built locally with uncommitted changes — it has no matching release,
+    /// Built locally with uncommitted changes - it has no matching release,
     /// so comparing SHAs would always (wrongly) report an update.
     case localBuild
     case updateAvailable(latestSHA: String, pkgURL: URL)
@@ -22,8 +22,8 @@ enum UpdateInstallError: LocalizedError {
 
 /// Compares the commit baked into this build (see IXAKGitCommit in
 /// Info.plist, set by Scripts/build_app.sh) against the latest GitHub
-/// Release — published as build-<shortsha> by .github/workflows/release.yml
-/// on every push to main. Only runs when the user taps a button — no
+/// Release - published as build-<shortsha> by .github/workflows/release.yml
+/// on every push to main. Only runs when the user taps a button - no
 /// background polling, no telemetry, no account needed.
 enum UpdateChecker {
     private static let latestReleaseURL = URL(string: "https://api.github.com/repos/ihorsyv/ixak/releases/latest")!
@@ -70,7 +70,7 @@ enum UpdateChecker {
     }
 
     /// Downloads the .pkg to a temp file and hands it to the system
-    /// Installer via NSWorkspace — same as double-clicking it in Finder.
+    /// Installer via NSWorkspace - same as double-clicking it in Finder.
     /// macOS itself prompts for the admin password; IXAK never runs
     /// anything with elevated privileges.
     static func downloadAndOpenInstaller(from url: URL) async throws {

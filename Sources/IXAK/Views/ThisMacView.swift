@@ -159,8 +159,8 @@ struct ThisMacView: View {
                 }
                 if Double(free) / Double(total) < 0.1 {
                     BilingualLabel(
-                        en: "Less than 10% free — macOS slows down and updates may fail. Check the Storage and Cleanup tabs.",
-                        ru: "Свободно меньше 10% — macOS начинает тормозить, обновления могут не установиться. Загляните во вкладки «Хранилище» и «Чистка»."
+                        en: "Less than 10% free - macOS slows down and updates may fail. Check the Storage and Cleanup tabs.",
+                        ru: "Свободно меньше 10% - macOS начинает тормозить, обновления могут не установиться. Загляните во вкладки «Хранилище» и «Чистка»."
                     )
                     .font(.callout)
                     .foregroundStyle(.orange)
@@ -298,8 +298,8 @@ struct ThisMacView: View {
         let swapHeavy = (info.swapUsedBytes ?? 0) > info.memoryBytes / 4
         guard (info.memoryFreePercent ?? 100) < 20 || swapHeavy else { return nil }
         return BilingualText(
-            en: "Memory is under pressure and macOS is swapping to disk — close heavy apps or browser tabs. If this is constant, the Mac needs more RAM than it has.",
-            ru: "Памяти не хватает, macOS активно использует файл подкачки — закройте тяжёлые приложения или вкладки браузера. Если так постоянно, этому Mac не хватает оперативной памяти."
+            en: "Memory is under pressure and macOS is swapping to disk - close heavy apps or browser tabs. If this is constant, the Mac needs more RAM than it has.",
+            ru: "Памяти не хватает, macOS активно использует файл подкачки - закройте тяжёлые приложения или вкладки браузера. Если так постоянно, этому Mac не хватает оперативной памяти."
         )
     }
 
@@ -325,7 +325,7 @@ struct ThisMacView: View {
         switch state {
         case .nominal: BilingualText(en: "Normal", ru: "Нормальный")
         case .fair: BilingualText(en: "Warm", ru: "Повышенный")
-        case .serious: BilingualText(en: "Hot — throttling", ru: "Горячо — снижение частот")
+        case .serious: BilingualText(en: "Hot - throttling", ru: "Горячо - снижение частот")
         case .critical: BilingualText(en: "Critical", ru: "Критический")
         @unknown default: BilingualText(en: "Unknown", ru: "Неизвестно")
         }

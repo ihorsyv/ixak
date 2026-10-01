@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Owns diagnostics state outside the view so a running test keeps
-/// updating (and keeps its results) when the user switches tabs — macOS
+/// updating (and keeps its results) when the user switches tabs - macOS
 /// TabView fires onDisappear on the hidden tab, which previously killed
 /// the progress timer mid-test.
 @MainActor
@@ -80,7 +80,7 @@ final class DiagnosticsModel: ObservableObject {
             ramPassed = passed
             ramResult = passed
                 ? BilingualText(en: "Passed ✓", ru: "Пройден ✓")
-                : BilingualText(en: "FAILED — data mismatch", ru: "ОШИБКА — несовпадение данных")
+                : BilingualText(en: "FAILED - data mismatch", ru: "ОШИБКА - несовпадение данных")
             isRunningRAM = false
         }
     }
@@ -207,8 +207,8 @@ struct DiagnosticsView: View {
     private func cpuRecommendation(averageLoad: Double) -> BilingualText? {
         guard averageLoad < 70 else { return nil }
         return BilingualText(
-            en: "Average load stayed below 70% — likely other apps competing for CPU, or thermal throttling. Close background apps and retry.",
-            ru: "Средняя загрузка ниже 70% — вероятно, другие приложения тоже используют CPU, либо тротлинг по температуре. Закройте фоновые приложения и повторите тест."
+            en: "Average load stayed below 70% - likely other apps competing for CPU, or thermal throttling. Close background apps and retry.",
+            ru: "Средняя загрузка ниже 70% - вероятно, другие приложения тоже используют CPU, либо тротлинг по температуре. Закройте фоновые приложения и повторите тест."
         )
     }
 
@@ -216,8 +216,8 @@ struct DiagnosticsView: View {
         guard let write = model.lastWriteMBps, let read = model.lastReadMBps else { return nil }
         guard write < 300 || read < 300 else { return nil }
         return BilingualText(
-            en: "Speeds below 300 MB/s are slow for an internal SSD — check free disk space, run Disk Utility First Aid, or confirm this isn't an external/network drive.",
-            ru: "Скорость ниже 300 МБ/с — это медленно для внутреннего SSD. Проверьте свободное место, запустите First Aid в Disk Utility, либо убедитесь, что это не внешний/сетевой диск."
+            en: "Speeds below 300 MB/s are slow for an internal SSD - check free disk space, run Disk Utility First Aid, or confirm this isn't an external/network drive.",
+            ru: "Скорость ниже 300 МБ/с - это медленно для внутреннего SSD. Проверьте свободное место, запустите First Aid в Disk Utility, либо убедитесь, что это не внешний/сетевой диск."
         )
     }
 }

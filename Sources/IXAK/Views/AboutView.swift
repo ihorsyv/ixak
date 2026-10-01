@@ -20,12 +20,12 @@ struct AboutView: View {
             Section {
                 BilingualLabel(
                     en: "IXAK is an offline macOS utility for hardware diagnostics, battery health, and safe cache cleanup.",
-                    ru: "IXAK — офлайн-утилита для macOS: диагностика железа, здоровье батареи и безопасная чистка кэшей."
+                    ru: "IXAK - офлайн-утилита для macOS: диагностика железа, здоровье батареи и безопасная чистка кэшей."
                 )
                 .fixedSize(horizontal: false, vertical: true)
                 BilingualLabel(
-                    en: "Built by ihorsyv for personal use only — not distributed or supported as a product.",
-                    ru: "Сделано ihorsyv исключительно для личного использования — не распространяется и не поддерживается как продукт."
+                    en: "Built by ihorsyv for personal use only - not distributed or supported as a product.",
+                    ru: "Сделано ihorsyv исключительно для личного использования - не распространяется и не поддерживается как продукт."
                 )
                 .fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(.secondary)
@@ -70,8 +70,8 @@ struct AboutView: View {
                             .foregroundStyle(.green)
                     case .localBuild:
                         BilingualLabel(
-                            en: "Local development build (uncommitted changes) — updates from GitHub don't apply to it.",
-                            ru: "Локальная сборка с незакоммиченными изменениями — обновления с GitHub к ней не применяются."
+                            en: "Local development build (uncommitted changes) - updates from GitHub don't apply to it.",
+                            ru: "Локальная сборка с незакоммиченными изменениями - обновления с GitHub к ней не применяются."
                         )
                         .foregroundStyle(.secondary)
                     case .updateAvailable(let sha, let pkgURL):
@@ -89,8 +89,8 @@ struct AboutView: View {
                             }
                             if installerOpened {
                                 BilingualLabel(
-                                    en: "Installer opened. IXAK will now quit — open it again after installation finishes.",
-                                    ru: "Установщик открыт. IXAK сейчас закроется — откройте его снова после завершения установки."
+                                    en: "Installer opened. IXAK will now quit - open it again after installation finishes.",
+                                    ru: "Установщик открыт. IXAK сейчас закроется - откройте его снова после завершения установки."
                                 )
                                 .font(.callout)
                             }
@@ -132,7 +132,7 @@ struct AboutView: View {
         Task {
             do {
                 try await UpdateChecker.downloadAndOpenInstaller(from: pkgURL)
-                // Quit so the next launch runs the new build — otherwise the
+                // Quit so the next launch runs the new build - otherwise the
                 // Installer swaps the bundle under the running process and the
                 // window keeps showing the old version, looking like a failed update.
                 await MainActor.run { installerOpened = true }

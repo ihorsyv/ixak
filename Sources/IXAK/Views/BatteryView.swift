@@ -116,20 +116,20 @@ struct BatteryView: View {
     private func recommendation(for battery: BatteryInfo) -> BilingualText? {
         if battery.condition.en == "Service Recommended" {
             return BilingualText(
-                en: "Apple reports a permanent fault — book a Genius Bar / authorized service appointment.",
-                ru: "Apple сообщает о постоянной неисправности — обратитесь в авторизованный сервис."
+                en: "Apple reports a permanent fault - book a Genius Bar / authorized service appointment.",
+                ru: "Apple сообщает о постоянной неисправности - обратитесь в авторизованный сервис."
             )
         }
         if battery.healthPercent < 80 {
             return BilingualText(
-                en: "Battery health is below 80% — expect reduced runtime; consider a battery replacement.",
-                ru: "Износ батареи выше 20% — время работы заметно снижено, стоит задуматься о замене."
+                en: "Battery health is below 80% - expect reduced runtime; consider a battery replacement.",
+                ru: "Износ батареи выше 20% - время работы заметно снижено, стоит задуматься о замене."
             )
         }
         if let temp = battery.temperatureCelsius, temp > 40 {
             return BilingualText(
-                en: "Battery temperature is high (\(String(format: "%.0f", temp))°C) — ensure vents aren't blocked and avoid charging in direct sun/heat.",
-                ru: "Высокая температура батареи (\(String(format: "%.0f", temp))°C) — проверьте вентиляцию и не заряжайте на солнце/в тепле."
+                en: "Battery temperature is high (\(String(format: "%.0f", temp))°C) - ensure vents aren't blocked and avoid charging in direct sun/heat.",
+                ru: "Высокая температура батареи (\(String(format: "%.0f", temp))°C) - проверьте вентиляцию и не заряжайте на солнце/в тепле."
             )
         }
         return nil

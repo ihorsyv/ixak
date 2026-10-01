@@ -2,7 +2,7 @@ import AppKit
 
 /// Plain SwiftUI WindowGroup apps aren't reliably reopened by clicking the
 /// Dock icon once the last window is fully closed (as opposed to merely
-/// miniaturized) — observed as "closed the window, clicking the Dock icon
+/// miniaturized) - observed as "closed the window, clicking the Dock icon
 /// does nothing". This delegate re-triggers window creation via the
 /// captured `openWindow` action (see ContentView) whenever the app is
 /// reactivated with no visible windows.

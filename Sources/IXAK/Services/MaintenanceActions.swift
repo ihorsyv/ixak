@@ -7,7 +7,7 @@ struct MaintenanceAction: Identifiable {
     let run: () throws -> BilingualText
 }
 
-/// One-shot system maintenance commands — no scheduling, no background
+/// One-shot system maintenance commands - no scheduling, no background
 /// timer, nothing runs until the user taps its button, same as every other
 /// action in IXAK.
 enum MaintenanceActions {
@@ -19,7 +19,7 @@ enum MaintenanceActions {
         ),
         MaintenanceAction(
             title: BilingualText(en: "Flush DNS Cache", ru: "Сбросить кэш DNS"),
-            description: BilingualText(en: "Clears cached DNS lookups — helps after network/VPN changes.", ru: "Очищает кэш DNS-запросов — помогает после смены сети/VPN."),
+            description: BilingualText(en: "Clears cached DNS lookups - helps after network/VPN changes.", ru: "Очищает кэш DNS-запросов - помогает после смены сети/VPN."),
             run: { try runPrivileged("dscacheutil -flushcache; killall -HUP mDNSResponder") }
         ),
         MaintenanceAction(
@@ -29,7 +29,7 @@ enum MaintenanceActions {
         ),
         MaintenanceAction(
             title: BilingualText(en: "Rebuild Font Cache", ru: "Пересоздать кэш шрифтов"),
-            description: BilingualText(en: "Clears and restarts the font-matching service — fixes garbled or missing fonts.", ru: "Очищает и перезапускает сервис подбора шрифтов."),
+            description: BilingualText(en: "Clears and restarts the font-matching service - fixes garbled or missing fonts.", ru: "Очищает и перезапускает сервис подбора шрифтов."),
             run: {
                 _ = try run("/usr/bin/atsutil", ["databases", "-removeUser"])
                 _ = try run("/usr/bin/atsutil", ["server", "-shutdown"])
@@ -71,7 +71,7 @@ enum MaintenanceActions {
         do {
             let output = try run("/usr/bin/osascript", ["-e", script])
             guard !output.isEmpty else { return BilingualText(en: "Done", ru: "Готово") }
-            // Raw command output — not IXAK's own text, so there's no Russian
+            // Raw command output - not IXAK's own text, so there's no Russian
             // translation to give it; shown as-is on both lines.
             return BilingualText(en: output, ru: output)
         } catch {
