@@ -1,52 +1,51 @@
 # IXAK
 
-Маленькая офлайн-утилита для macOS: диагностика железа, здоровье батареи и безопасная чистка кэшей.
+A small offline macOS utility: hardware diagnostics, battery health and safe cache cleanup.
 
-Сделано [ihorsyv](https://github.com/ihorsyv) исключительно для личного использования - не распространяется и не поддерживается как продукт.
+Built by [Ihor SYVASH](https://cv-syvash.vercel.app). A personal tool, shared as a portfolio piece.
 
-## Что делает
+## What it does
 
-- **This Mac** - модель с годом выпуска, чип и ядра CPU/GPU, память и давление памяти, накопитель и S.M.A.R.T., дисплеи, статус SIP/FileVault/Gatekeeper/брандмауэра, аптайм; серийный номер скрыт по умолчанию; кнопка «Скопировать отчёт»
-- **Diagnostics** - нагрузочный тест CPU (все ядра), тест RAM (запись + верификация), тест скорости диска
-- **Battery** - износ, циклы заряда, температура - напрямую из системных сервисов IOKit
-- **Cleanup** - сканирует кэши приложений, логи, DerivedData, iOS DeviceSupport; удаляет только в Корзину, с подтверждением
-- **Storage** - ищет файлы и бандлы крупнее 200 МБ в домашней папке; `.app`/`.framework` и т.п. показываются одним объектом, без залезания внутрь; медиатеки «Фото»/«Музыки»/TV/iMovie видны, но выбрать их для удаления нельзя
-- **Uninstall** - полное удаление приложения вместе с хвостами по `~/Library`, плюс отдельный поиск «осиротевших» файлов (хвосты уже удалённых программ)
-- **Autostart** - список LaunchAgents/LaunchDaemons с возможностью отключить и удалить пользовательские записи
-- **Maintenance** - разовые команды обслуживания: переиндексация Spotlight, сброс DNS, очистка памяти, пересоздание кэша шрифтов
-- **About** - версия, коммит сборки, ручная проверка и установка обновлений (по кнопке, не в фоне)
+- **This Mac** - model and year, chip and CPU/GPU cores, memory and memory pressure, storage and S.M.A.R.T., displays, SIP/FileVault/Gatekeeper/firewall status, uptime; the serial number is hidden by default; a "Copy report" button
+- **Diagnostics** - CPU stress test (all cores), RAM test (write + verify), disk speed test
+- **Battery** - wear, charge cycles, temperature, read directly from IOKit system services
+- **Cleanup** - scans app caches, logs, DerivedData, iOS DeviceSupport; deletes only to the Trash, with confirmation
+- **Storage** - finds files and bundles over 200 MB in your home folder; `.app`/`.framework` and similar are shown as one item without digging inside; Photos/Music/TV/iMovie libraries are visible but cannot be selected for deletion
+- **Uninstall** - removes an app completely together with its leftovers in `~/Library`, plus a separate search for orphaned files (leftovers of apps already removed)
+- **Autostart** - list of LaunchAgents/LaunchDaemons, with the option to disable and remove user entries
+- **Maintenance** - one-off maintenance commands: Spotlight reindex, DNS flush, memory purge, font cache rebuild
+- **About** - version, build commit, manual update check and install (on a button press, never in the background)
 
-Весь интерфейс двуязычный - переключатель EN/RU в правом верхнем углу окна (`@AppStorage`, сохраняется между запусками).
+The whole interface is bilingual: an EN/RU switch in the top right corner of the window (`@AppStorage`, kept between launches).
 
-Работает полностью офлайн: сеть используется только по явному нажатию "Check for Updates" / "Install Update".
+Works fully offline: the network is used only when you press "Check for Updates" / "Install Update".
 
-Для удаления «осиротевших» файлов внутри чужих sandbox-контейнеров (`~/Library/Containers/...`) нужен Full Disk Access
-для IXAK: Настройки системы → Конфиденциальность и безопасность → Полный доступ к диску. Без этого разрешения такие
-файлы просто не удалятся - Cleanup/Storage/Autostart трогают только объекты, до которых у процесса и так есть доступ,
-это ограничение касается только Uninstall → Осиротевшие файлы.
+To delete orphaned files inside other apps' sandbox containers (`~/Library/Containers/...`), IXAK needs Full Disk Access:
+System Settings → Privacy & Security → Full Disk Access. Without it those files simply will not be deleted.
+Cleanup/Storage/Autostart only touch items the process can already access; this limit applies only to Uninstall → Orphaned files.
 
-## Обновления
+## Updates
 
-Каждый push в `main` (кроме правок README) автоматически собирает `.pkg` и публикует его в GitHub Releases -
-см. `.github/workflows/release.yml`. Кнопка "Check for Updates" в приложении сверяет коммит своей сборки с
-последним релизом; если есть новее - кнопка "Install Update" сама скачивает `.pkg` и открывает его в
-штатном macOS Installer (пароль администратора спросит сама система), после чего IXAK закрывается сам -
-после установки его нужно открыть заново. Работает на любом Mac, где уже установлен IXAK - без Xcode и
-Terminal. Локальные сборки с незакоммиченными изменениями (`-dirty`) обновления не предлагают.
+Every push to `main` (except README edits) automatically builds a `.pkg` and publishes it to GitHub Releases,
+see `.github/workflows/release.yml`. The "Check for Updates" button compares the commit of its own build with
+the latest release; if a newer one exists, "Install Update" downloads the `.pkg` and opens it in the standard
+macOS Installer (the system itself asks for the admin password), then IXAK quits; open it again after installing.
+Works on any Mac where IXAK is already installed, with no Xcode or Terminal. Local builds with uncommitted
+changes (`-dirty`) do not offer updates.
 
-## Конфиденциальность
+## Privacy
 
-- Оператор: Сиваш Игорь Владимирович, физическое лицо, гражданин Украины. Контакт: sb.vost@gmail.com.
-- Приложение работает офлайн. Персональные данные и сведения о вашем Mac не передаются никуда.
-- Сеть используется только по кнопкам «Check for Updates» и «Install Update»: запрос к GitHub API и скачивание `.pkg` из GitHub Releases. Никакие другие данные при этом не отправляются.
-- Телеметрии, аналитики, аккаунтов и рекламы нет.
-- Локально сохраняется только выбранный язык интерфейса (`@AppStorage`).
-- Для поиска осиротевших файлов приложение читает только то, до чего у процесса есть доступ. Полный доступ к диску выдаётся вами вручную и отзывается в настройках macOS.
-- Удаление файлов идёт в Корзину с подтверждением. Безвозвратного удаления приложение не делает.
+- Operator: Ihor SYVASH, private individual, Ukrainian citizen. Contact: sb.vost@gmail.com.
+- The app works offline. No personal data or information about your Mac is sent anywhere.
+- The network is used only by the "Check for Updates" and "Install Update" buttons: a request to the GitHub API and a `.pkg` download from GitHub Releases. No other data is sent.
+- No telemetry, analytics, accounts or ads.
+- The only thing stored locally is the selected interface language (`@AppStorage`).
+- To find orphaned files, the app reads only what the process can access. Full Disk Access is granted by you manually and can be revoked in macOS settings.
+- Files are deleted to the Trash with confirmation. The app never deletes anything permanently.
 
-## Установка
+## Install
 
-Собрать самому (нужен Xcode):
+Build it yourself (Xcode required):
 
 ```bash
 git clone https://github.com/ihorsyv/ixak.git
@@ -55,18 +54,18 @@ cd ixak/ixak-mac-utility
 open build/IXAK.app
 ```
 
-Либо собрать готовый инсталлятор для передачи на другой Mac:
+Or build a ready installer to move to another Mac:
 
 ```bash
 ./Scripts/build_installer.sh
 ```
 
-Появится `build/IXAK Installer.pkg` - обычный `.pkg`, открывается стандартным мастером установки macOS ("Продолжить" → "Установить" → пароль), ставит `IXAK.app` в `/Applications` и добавляет ярлык на рабочий стол. Это один файл (не папка), поэтому его можно отправлять через Telegram/AirDrop как есть, без zip - внутри мессенджера нечему потерять биты выполнения, как это бывало со старым `.app`-инсталлятором.
+This produces `build/IXAK Installer.pkg`, a regular `.pkg` that opens in the standard macOS installer ("Continue" → "Install" → password), puts `IXAK.app` in `/Applications` and adds a shortcut to the desktop. It is a single file (not a folder), so it can be sent over Telegram/AirDrop as is, without zipping; a messenger has no execute bits to lose, which used to happen with the old `.app` installer.
 
-Пакет не подписан сертификатом Apple Developer (только ad-hoc), поэтому при первом открытии macOS покажет предупреждение Gatekeeper «Apple не может проверить...». Получателю достаточно один раз: правый клик по файлу → «Открыть» → «Открыть» - дальше стандартный мастер установки, никакого Terminal не нужно.
+The package is not signed with an Apple Developer certificate (ad-hoc only), so on first open macOS shows the Gatekeeper warning "Apple cannot verify...". The recipient only needs to do this once: right-click the file → "Open" → "Open", then the standard installer runs, no Terminal needed.
 
-Все технические фиксы (снятие карантина, восстановление бита запуска, ad-hoc переподпись `IXAK.app`) зашиты в `postinstall`-скрипт пакета (`Scripts/pkg-scripts/postinstall`) и выполняются автоматически при установке с правами администратора.
+All technical fixes (quarantine removal, restoring the execute bit, ad-hoc re-signing of `IXAK.app`) are built into the package `postinstall` script (`Scripts/pkg-scripts/postinstall`) and run automatically during installation with admin rights.
 
-## Требования
+## Requirements
 
-macOS 13+, Intel или Apple Silicon (собирается как universal-бинарник).
+macOS 13+, Intel or Apple Silicon (built as a universal binary).
